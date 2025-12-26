@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { Loader2, Lock, Mail, Home } from "lucide-react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
@@ -47,52 +48,68 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-            <Lock className="w-8 h-8 text-indigo-600" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 py-4 md:py-8 lg:py-12 px-2 md:px-4 relative">
+      {/* Background decorative elements - Hidden on mobile */}
+      <div className="hidden md:block absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full max-w-md mx-auto relative z-10 px-2 md:px-0">
+        <div className="bg-white md:bg-white/80 md:backdrop-blur-md rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg md:shadow-2xl p-4 md:p-5 lg:p-6 xl:p-7 border-0 md:border border-gray-200/50">
+        {/* Back to Home Button */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900 mb-4 text-xs md:text-sm transition-colors"
+        >
+          <Home className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          <span>Back to Home</span>
+        </Link>
+
+        <div className="text-center mb-6 md:mb-7">
+          <div className="mx-auto w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg md:rounded-xl flex items-center justify-center mb-4 md:mb-5 shadow-lg">
+            <Lock className="w-6 h-6 md:w-7 md:h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Admin Login
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm md:text-base">
             Sign in to access the admin dashboard
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white hover:border-gray-300 text-sm"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white hover:border-gray-300 text-sm"
                 required
               />
             </div>
@@ -101,7 +118,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 md:py-3 px-4 md:px-5 rounded-lg md:rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none text-sm"
           >
             {isLoading ? (
               <>
@@ -114,10 +131,11 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
+        <div className="mt-5 md:mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-xs md:text-sm text-blue-800">
             <strong>Note:</strong> This is an admin-only area. You must have an admin account created in Firebase Authentication to access the dashboard.
           </p>
+        </div>
         </div>
       </div>
     </div>

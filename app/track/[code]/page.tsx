@@ -181,18 +181,18 @@ export default function ReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 md:py-6 lg:py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4 md:mb-5 lg:mb-6">
           <button
             onClick={() => router.push("/track")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 mb-3 md:mb-4 text-xs md:text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
             Back to Track
           </button>
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Details</h1>
@@ -261,8 +261,8 @@ export default function ReportDetailPage() {
         </div>
 
         {/* Chat Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Messages</h2>
+        <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
           
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
             {report.messages && report.messages.length > 0 ? (

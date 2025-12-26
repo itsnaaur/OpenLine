@@ -181,40 +181,40 @@ export default function AdminReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-4 md:py-6 lg:py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4 md:mb-5 lg:mb-6">
           <button
             onClick={() => router.push("/admin/dashboard")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 mb-3 md:mb-4 text-xs md:text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
             Back to Dashboard
           </button>
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-start justify-between mb-4">
+          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+            <div className="flex items-start justify-between mb-3 md:mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Details</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">Report Details</h1>
+                <p className="text-xs md:text-sm text-gray-500">
                   Access Code: <span className="font-mono font-semibold">{report.accessCode}</span>
                 </p>
               </div>
-              <div className={`px-4 py-2 rounded-lg border-2 font-semibold ${getStatusColor(report.status)}`}>
+              <div className={`px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg border-2 font-semibold text-xs md:text-sm ${getStatusColor(report.status)}`}>
                 {report.status}
               </div>
             </div>
 
             {/* Status Update Section */}
-            <div className="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="mb-4 md:mb-5 p-3 md:p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
                 Update Status
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value as ReportStatus)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
                   disabled={updatingStatus}
                 >
                   <option value="New">New</option>
@@ -224,61 +224,61 @@ export default function AdminReportDetailPage() {
                 <button
                   onClick={handleStatusUpdate}
                   disabled={selectedStatus === report.status || updatingStatus}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm"
                 >
                   {updatingStatus ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
                   ) : (
-                    <Save className="w-4 h-4" />
+                    <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   )}
-                  Update
+                  <span className="hidden sm:inline">Update</span>
                 </button>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div className="grid md:grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Category</p>
-                <p className="font-medium text-gray-900">{report.category}</p>
+                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Category</p>
+                <p className="font-medium text-gray-900 text-sm md:text-base">{report.category}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-1">Urgency</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getUrgencyColor(report.urgency)}`}>
+                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Urgency</p>
+                <span className={`inline-block px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-medium ${getUrgencyColor(report.urgency)}`}>
                   {report.urgency}
                 </span>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-1">Submitted</p>
-                <p className="font-medium text-gray-900">{formatDate(report.createdAt)}</p>
+                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Submitted</p>
+                <p className="font-medium text-gray-900 text-sm md:text-base">{formatDate(report.createdAt)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-1">Last Updated</p>
-                <p className="font-medium text-gray-900">{formatDate(report.lastUpdated)}</p>
+                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Last Updated</p>
+                <p className="font-medium text-gray-900 text-sm md:text-base">{formatDate(report.lastUpdated)}</p>
               </div>
             </div>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">Description</p>
-              <p className="text-gray-900 whitespace-pre-wrap">{report.description}</p>
+            <div className="mb-3 md:mb-4">
+              <p className="text-xs md:text-sm text-gray-500 mb-1 md:mb-1.5">Description</p>
+              <p className="text-gray-900 whitespace-pre-wrap text-sm md:text-base">{report.description}</p>
             </div>
 
             {report.evidenceUrl && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-500 mb-2">Evidence</p>
+              <div className="mt-3 md:mt-4">
+                <p className="text-xs md:text-sm text-gray-500 mb-1.5 md:mb-2">Evidence</p>
                 {report.evidenceUrl.endsWith('.pdf') ? (
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="border border-gray-200 rounded-lg p-3 md:p-4 bg-gray-50">
                     <a
                       href={report.evidenceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"
+                      className="flex items-center gap-1.5 md:gap-2 text-indigo-600 hover:text-indigo-700 text-xs md:text-sm"
                     >
-                      <ImageIcon className="w-5 h-5" />
+                      <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
                       <span>View PDF Evidence</span>
                     </a>
                   </div>
                 ) : (
-                  <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200">
+                  <div className="relative w-full h-48 md:h-56 lg:h-64 rounded-lg overflow-hidden border border-gray-200">
                     <Image
                       src={report.evidenceUrl}
                       alt="Evidence"
@@ -294,10 +294,10 @@ export default function AdminReportDetailPage() {
         </div>
 
         {/* Chat Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Messages</h2>
+        <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
 
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+          <div className="space-y-3 md:space-y-4 mb-4 md:mb-5 max-h-80 md:max-h-96 overflow-y-auto">
             {report.messages && report.messages.length > 0 ? (
               report.messages.map((message, index) => (
                 <div
@@ -305,13 +305,13 @@ export default function AdminReportDetailPage() {
                   className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
+                    className={`max-w-[80%] rounded-lg p-2.5 md:p-3 ${
                       message.sender === "admin"
                         ? "bg-indigo-600 text-white"
                         : "bg-gray-100 text-gray-900"
                     }`}
                   >
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-0.5 md:mb-1">
                       <span className={`text-xs font-semibold ${
                         message.sender === "admin" ? "text-indigo-100" : "text-gray-600"
                       }`}>
@@ -323,7 +323,7 @@ export default function AdminReportDetailPage() {
                         {formatDate(message.timestamp)}
                       </span>
                     </div>
-                    <p className={`text-sm whitespace-pre-wrap ${
+                    <p className={`text-xs md:text-sm whitespace-pre-wrap ${
                       message.sender === "admin" ? "text-white" : "text-gray-900"
                     }`}>
                       {message.text}
@@ -343,20 +343,20 @@ export default function AdminReportDetailPage() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your reply..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
               disabled={sending}
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 md:px-5 lg:px-6 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 md:gap-2 text-xs md:text-sm"
             >
               {sending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
               )}
-              Send
+              <span className="hidden sm:inline">Send</span>
             </button>
           </form>
         </div>
