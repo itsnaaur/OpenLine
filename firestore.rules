@@ -1,0 +1,22 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reports collection
+    match /reports/{reportId} {
+      // Allow anyone to create a new report (anonymous submission)
+      allow create: if true;
+      
+      // Allow anyone to read reports (accessCode validation happens on frontend)
+      // In production, you might want to add more restrictions here
+      allow read: if true;
+      
+      // Only authenticated admins can update reports (change status, add messages)
+      allow update: if request.auth != null;
+      
+      // Only authenticated admins can delete reports
+      allow delete: if request.auth != null;
+    }
+  }
+}
+

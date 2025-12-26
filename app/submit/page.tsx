@@ -82,7 +82,7 @@ export default function SubmitReportPage() {
         urgency: formData.urgency as UrgencyLevel,
         description: formData.description.trim(),
         status: "New",
-        evidenceUrl,
+        ...(evidenceUrl && { evidenceUrl }), // Only include if evidenceUrl exists
         createdAt: now,
         lastUpdated: now,
         messages: [
