@@ -1,9 +1,19 @@
 import Link from "next/link";
-import { FileText, Search, Shield } from "lucide-react";
+import { FileText, Search, Shield, Lock } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
+      {/* Discrete Admin Login - Bottom Right Corner */}
+      <Link
+        href="/admin/login"
+        className="fixed bottom-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-200/30 hover:bg-gray-300/50 backdrop-blur-sm transition-all hover:scale-110 group"
+        title="Admin Login"
+        aria-label="Admin Login"
+      >
+        <Lock className="w-4 h-4 text-gray-500/60 group-hover:text-gray-600/80" />
+      </Link>
+
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">

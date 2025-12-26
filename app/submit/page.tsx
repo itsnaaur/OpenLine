@@ -6,7 +6,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { generateAccessCode } from "@/lib/utils";
 import { Report, ReportCategory, UrgencyLevel } from "@/types";
-import { Upload, CheckCircle2, Copy, Loader2 } from "lucide-react";
+import { Upload, CheckCircle2, Copy, Loader2, Lock } from "lucide-react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function SubmitReportPage() {
@@ -123,7 +124,16 @@ export default function SubmitReportPage() {
   // Success View
   if (accessCode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 relative">
+        {/* Discrete Admin Login - Bottom Right Corner */}
+        <Link
+          href="/admin/login"
+          className="fixed bottom-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-200/30 hover:bg-gray-300/50 backdrop-blur-sm transition-all hover:scale-110 group z-10"
+          title="Admin Login"
+          aria-label="Admin Login"
+        >
+          <Lock className="w-4 h-4 text-gray-500/60 group-hover:text-gray-600/80" />
+        </Link>
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="mb-6">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -180,7 +190,17 @@ export default function SubmitReportPage() {
 
   // Form View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 relative">
+      {/* Discrete Admin Login - Bottom Right Corner */}
+      <Link
+        href="/admin/login"
+        className="fixed bottom-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-200/30 hover:bg-gray-300/50 backdrop-blur-sm transition-all hover:scale-110 group z-10"
+        title="Admin Login"
+        aria-label="Admin Login"
+      >
+        <Lock className="w-4 h-4 text-gray-500/60 group-hover:text-gray-600/80" />
+      </Link>
+
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="mb-8">

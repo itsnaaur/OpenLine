@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, AlertCircle } from "lucide-react";
+import { Search, AlertCircle, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function TrackReportPage() {
@@ -33,7 +34,17 @@ export default function TrackReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 relative">
+      {/* Discrete Admin Login - Bottom Right Corner */}
+      <Link
+        href="/admin/login"
+        className="fixed bottom-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-200/30 hover:bg-gray-300/50 backdrop-blur-sm transition-all hover:scale-110 group z-10"
+        title="Admin Login"
+        aria-label="Admin Login"
+      >
+        <Lock className="w-4 h-4 text-gray-500/60 group-hover:text-gray-600/80" />
+      </Link>
+
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
