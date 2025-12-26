@@ -21,7 +21,7 @@ export default function SubmitReportPage() {
   const [accessCode, setAccessCode] = useState<string | null>(null);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
