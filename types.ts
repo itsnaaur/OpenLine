@@ -23,8 +23,11 @@ export interface Report {
   lastUpdated: number; // Unix timestamp
   messages: Message[]; // Chat history array
   aiAnalysis?: {
+    categoryAssessment: ReportCategory;
+    categoryMatch: boolean;
     aiAssessment: UrgencyLevel;
-    match: boolean;
+    urgencyMatch: boolean;
+    match: boolean; // Overall match (both category and urgency match)
     lawCited: string;
     reason: string;
   };

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Report, ReportStatus, Message } from "@/types";
+import { Report, ReportStatus, Message, UrgencyLevel, ReportCategory } from "@/types";
 import { ArrowLeft, Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -22,6 +22,10 @@ export default function AdminReportDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ReportStatus>("New");
   const [runningAiCheck, setRunningAiCheck] = useState(false);
+  const [updatingUrgency, setUpdatingUrgency] = useState(false);
+  const [selectedUrgency, setSelectedUrgency] = useState<string>("");
+  const [updatingCategory, setUpdatingCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
     if (!reportId) return;
@@ -45,6 +49,8 @@ export default function AdminReportDetailPage() {
 
         setReport(reportData);
         setSelectedStatus(reportData.status);
+        setSelectedUrgency(reportData.urgency);
+        setSelectedCategory(reportData.category);
 
         // Set up real-time listener
         const unsubscribe = onSnapshot(reportRef, (snapshot) => {
@@ -55,6 +61,15 @@ export default function AdminReportDetailPage() {
             } as Report;
             setReport(updatedData);
             setSelectedStatus(updatedData.status);
+            setSelectedCategory(updatedData.category);
+            
+            // If AI analysis exists and there's a mismatch, set selectedUrgency to AI's recommendation
+            // Otherwise, use the current urgency
+            if (updatedData.aiAnalysis && !updatedData.aiAnalysis.urgencyMatch) {
+              setSelectedUrgency(updatedData.aiAnalysis.aiAssessment);
+            } else {
+              setSelectedUrgency(updatedData.urgency);
+            }
           }
         });
 
@@ -176,6 +191,14 @@ export default function AdminReportDetailPage() {
           lastUpdated: Date.now(),
         });
         
+        // If there's a discrepancy, set the selected values to AI's assessment
+        if (!result.categoryMatch && result.categoryAssessment) {
+          setSelectedCategory(result.categoryAssessment);
+        }
+        if (!result.urgencyMatch && result.aiAssessment) {
+          setSelectedUrgency(result.aiAssessment);
+        }
+        
         toast.success("AI analysis completed!", { id: "ai-check" });
         // The report will be updated via real-time listener
       } else {
@@ -186,6 +209,74 @@ export default function AdminReportDetailPage() {
       toast.error("Failed to run AI check. Please try again.", { id: "ai-check" });
     } finally {
       setRunningAiCheck(false);
+    }
+  };
+
+  const handleUpdateCategory = async () => {
+    if (!report?.id || !report.aiAnalysis || selectedCategory === report.category) return;
+
+    setUpdatingCategory(true);
+    try {
+      const reportRef = doc(db, "reports", report.id);
+      const now = Date.now();
+      
+      // Create a message explaining the category change with law cited
+      const categoryChangeMessage: Message = {
+        sender: "admin",
+        text: `📋 Category Updated\n\nYour report's category has been updated from "${report.category}" to "${selectedCategory}" based on AI compliance verification.\n\n📋 Law Cited: ${report.aiAnalysis.lawCited}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures proper classification for compliance with Philippine Corporate Laws.`,
+        timestamp: now,
+      };
+
+      // Update category and add message
+      await updateDoc(reportRef, {
+        category: selectedCategory as ReportCategory,
+        messages: [...(report.messages || []), categoryChangeMessage],
+        lastUpdated: now,
+      });
+
+      // Preserve selectedUrgency to AI's recommendation if there's still a mismatch
+      // This ensures the urgency update button remains enabled
+      if (report.aiAnalysis && !report.aiAnalysis.urgencyMatch && report.aiAnalysis.aiAssessment) {
+        setSelectedUrgency(report.aiAnalysis.aiAssessment);
+      }
+
+      toast.success("Category updated and reporter notified!");
+    } catch (error: any) {
+      console.error("Error updating category:", error);
+      toast.error("Failed to update category");
+    } finally {
+      setUpdatingCategory(false);
+    }
+  };
+
+  const handleUpdateUrgency = async () => {
+    if (!report?.id || !report.aiAnalysis || selectedUrgency === report.urgency) return;
+
+    setUpdatingUrgency(true);
+    try {
+      const reportRef = doc(db, "reports", report.id);
+      const now = Date.now();
+      
+      // Create a message explaining the urgency change with law cited
+      const urgencyChangeMessage: Message = {
+        sender: "admin",
+        text: `⚠️ Urgency Level Updated\n\nYour report's urgency has been updated from "${report.urgency}" to "${selectedUrgency}" based on AI compliance verification.\n\n📋 Law Cited: ${report.aiAnalysis.lawCited}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures compliance with Philippine Corporate Laws.`,
+        timestamp: now,
+      };
+
+      // Update urgency and add message
+      await updateDoc(reportRef, {
+        urgency: selectedUrgency as UrgencyLevel,
+        messages: [...(report.messages || []), urgencyChangeMessage],
+        lastUpdated: now,
+      });
+
+      toast.success("Urgency updated and reporter notified!");
+    } catch (error: any) {
+      console.error("Error updating urgency:", error);
+      toast.error("Failed to update urgency");
+    } finally {
+      setUpdatingUrgency(false);
     }
   };
 
@@ -365,30 +456,127 @@ export default function AdminReportDetailPage() {
                   ) : (
                     <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-600 flex-shrink-0" />
                   )}
-                  <div className="flex-1">
-                    <p className="text-xs md:text-sm text-gray-600 mb-1">
-                      <span className="font-semibold">User Claimed:</span>{" "}
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
-                        {report.urgency}
-                      </span>
-                    </p>
-                    <p className="text-xs md:text-sm text-gray-600">
-                      <span className="font-semibold">AI Assessment:</span>{" "}
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getAiAssessmentColor(report.aiAnalysis.aiAssessment)}`}>
-                        {report.aiAnalysis.aiAssessment}
-                      </span>
-                    </p>
+                  <div className="flex-1 space-y-1.5">
+                    {/* Category Assessment */}
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-600 mb-0.5">
+                        <span className="font-semibold">Category:</span>{" "}
+                        <span className="text-gray-900">{report.category}</span>
+                        {!report.aiAnalysis.categoryMatch && (
+                          <>
+                            {" → "}
+                            <span className="font-semibold text-red-600">{report.aiAnalysis.categoryAssessment}</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    {/* Urgency Assessment */}
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-600 mb-0.5">
+                        <span className="font-semibold">Urgency:</span>{" "}
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
+                          {report.urgency}
+                        </span>
+                        {!report.aiAnalysis.urgencyMatch && (
+                          <>
+                            {" → "}
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getAiAssessmentColor(report.aiAnalysis.aiAssessment)}`}>
+                              {report.aiAnalysis.aiAssessment}
+                            </span>
+                          </>
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 {!report.aiAnalysis.match && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
-                    <p className="text-xs md:text-sm font-semibold text-red-800 mb-1">
-                      ⚠️ Discrepancy Detected
-                    </p>
-                    <p className="text-xs md:text-sm text-red-700">
-                      User's urgency assessment does not match AI's compliance-based analysis.
-                    </p>
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
+                      <p className="text-xs md:text-sm font-semibold text-red-800 mb-1">
+                        ⚠️ Discrepancy Detected
+                      </p>
+                      <p className="text-xs md:text-sm text-red-700">
+                        {!report.aiAnalysis.categoryMatch && !report.aiAnalysis.urgencyMatch
+                          ? "Category and urgency do not match AI's compliance-based analysis."
+                          : !report.aiAnalysis.categoryMatch
+                          ? "Category does not match AI's compliance-based analysis."
+                          : "Urgency does not match AI's compliance-based analysis."}
+                      </p>
+                    </div>
+
+                    {/* Update Category Section (if mismatch) */}
+                    {!report.aiAnalysis.categoryMatch && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4">
+                        <p className="text-xs md:text-sm font-semibold text-yellow-900 mb-2">
+                          Update Category to Match AI Assessment
+                        </p>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-xs md:text-sm"
+                            disabled={updatingCategory}
+                          >
+                            <option value="Safety">Safety</option>
+                            <option value="Harassment">Harassment</option>
+                            <option value="Facility Issue">Facility Issue</option>
+                            <option value="Suggestion">Suggestion</option>
+                          </select>
+                          <button
+                            onClick={handleUpdateCategory}
+                            disabled={selectedCategory === report.category || updatingCategory}
+                            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
+                          >
+                            {updatingCategory ? (
+                              <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                            )}
+                            <span className="hidden sm:inline">Update Category</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-yellow-800 mt-2">
+                          This will notify the reporter about the change with the law cited.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Update Urgency Section (if mismatch) */}
+                    {!report.aiAnalysis.urgencyMatch && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4">
+                        <p className="text-xs md:text-sm font-semibold text-yellow-900 mb-2">
+                          Update Urgency to Match AI Assessment
+                        </p>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <select
+                            value={selectedUrgency}
+                            onChange={(e) => setSelectedUrgency(e.target.value)}
+                            className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-xs md:text-sm"
+                            disabled={updatingUrgency}
+                          >
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                          </select>
+                          <button
+                            onClick={handleUpdateUrgency}
+                            disabled={selectedUrgency === report.urgency || updatingUrgency}
+                            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
+                          >
+                            {updatingUrgency ? (
+                              <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                            )}
+                            <span className="hidden sm:inline">Update Urgency</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-yellow-800 mt-2">
+                          This will notify the reporter about the change with the law cited.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 

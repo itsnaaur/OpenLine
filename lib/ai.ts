@@ -12,28 +12,41 @@ export async function checkCompliance(
 
   const prompt = `
     Role: Corporate Compliance Officer (Philippines).
-    Task: Compare the User's claimed Urgency vs. Actual Risk based on Philippine Laws.
+    Task: Validate both the Category and Urgency of the report against Philippine Laws.
 
-    Report:
-    - "${description}" (Category: ${category})
-    - User Claimed: ${userUrgency}
+    Report Description: "${description}"
+    User Claimed Category: ${category}
+    User Claimed Urgency: ${userUrgency}
+
+    Available Categories:
+    - "Safety": Physical hazards, workplace safety issues, dangerous conditions
+    - "Harassment": Sexual harassment, discrimination, abuse, bullying
+    - "Facility Issue": Broken equipment, maintenance problems, non-dangerous facility problems
+    - "Suggestion": Improvement ideas, recommendations, non-urgent feedback
 
     Reference Laws:
-    1. RA 11058 (OSH Law): High Urgency if "Imminent Danger" to safety exists (e.g., exposed chemicals, unstable structures, electrical hazards, fire risks).
-    2. RA 11313 (Safe Spaces Act): High Urgency for sexual harassment/abuse, gender-based violence, or workplace discrimination.
-    3. RA 11232 (Corp Code): High Urgency for fraud, financial crime, bribery, theft, or falsifying records.
+    1. RA 11058 (OSH Law): Applies to "Safety" category. High Urgency if "Imminent Danger" exists (exposed chemicals, unstable structures, electrical hazards, fire risks).
+    2. RA 11313 (Safe Spaces Act): Applies to "Harassment" category. High Urgency for sexual harassment/abuse, gender-based violence, workplace discrimination.
+    3. RA 11232 (Corp Code): Applies to fraud/financial crimes. High Urgency for fraud, financial crime, bribery, theft, falsifying records.
 
-    Analyze the description and determine the actual urgency level based on these laws.
-    If the situation poses immediate danger to life or health, it MUST be High.
-    If it involves legal violations (harassment, fraud), it MUST be High.
-    If it's a minor facility issue or suggestion, it should be Low or Medium.
+    Analyze the description and determine:
+    1. The CORRECT category based on the content (Safety, Harassment, Facility Issue, or Suggestion)
+    2. The CORRECT urgency level based on Philippine Laws (Low, Medium, or High)
+
+    Rules:
+    - If it poses immediate danger to life/health → Category: "Safety", Urgency: "High"
+    - If it involves harassment/discrimination → Category: "Harassment", Urgency: "High"
+    - If it's broken equipment (non-dangerous) → Category: "Facility Issue", Urgency: "Low" or "Medium"
+    - If it's a suggestion/improvement → Category: "Suggestion", Urgency: "Low"
 
     Output ONLY valid JSON (no markdown, no code blocks):
     {
+      "categoryAssessment": "Safety" | "Harassment" | "Facility Issue" | "Suggestion",
+      "categoryMatch": boolean,
       "aiAssessment": "Low" | "Medium" | "High",
-      "match": boolean,
+      "urgencyMatch": boolean,
       "lawCited": "string (e.g., RA 11058, RA 11313, RA 11232, or 'None')",
-      "reason": "Short explanation (1-2 sentences)."
+      "reason": "Short explanation (1-2 sentences) covering both category and urgency validation."
     }
   `;
 
@@ -57,8 +70,12 @@ export async function checkCompliance(
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
+          categoryAssessment: parsed.categoryAssessment || category,
+          categoryMatch: parsed.categoryMatch !== undefined ? parsed.categoryMatch : parsed.categoryAssessment === category,
           aiAssessment: parsed.aiAssessment || userUrgency,
-          match: parsed.match !== undefined ? parsed.match : parsed.aiAssessment === userUrgency,
+          urgencyMatch: parsed.urgencyMatch !== undefined ? parsed.urgencyMatch : parsed.aiAssessment === userUrgency,
+          match: (parsed.categoryMatch !== undefined ? parsed.categoryMatch : parsed.categoryAssessment === category) && 
+                 (parsed.urgencyMatch !== undefined ? parsed.urgencyMatch : parsed.aiAssessment === userUrgency),
           lawCited: parsed.lawCited || "None",
           reason: parsed.reason || "Analysis completed.",
         };
@@ -66,7 +83,10 @@ export async function checkCompliance(
       
       // Fallback if JSON parsing fails
       return {
+        categoryAssessment: category,
+        categoryMatch: true,
         aiAssessment: userUrgency,
+        urgencyMatch: true,
         match: true,
         lawCited: "None",
         reason: "AI analysis unavailable. Using user's assessment.",
