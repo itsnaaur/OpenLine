@@ -22,5 +22,11 @@ export interface Report {
   createdAt: number; // Unix timestamp
   lastUpdated: number; // Unix timestamp
   messages: Message[]; // Chat history array
+  aiAnalysis?: {
+    aiAssessment: UrgencyLevel;
+    match: boolean;
+    lawCited: string;
+    reason: string;
+  };
 }
 

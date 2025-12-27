@@ -26,7 +26,17 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Google Gemini AI (for Phase 6: AI Compliance Verification)
+GEMINI_API_KEY=your_gemini_api_key
 ```
+
+**Getting Your Gemini API Key:**
+1. Visit [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click "Get API Key" or go to "API Keys" in the sidebar
+4. Create a new API key (it's free!)
+5. Copy the key and add it to `.env.local` as `GEMINI_API_KEY`
 
 📖 **Detailed Setup:** See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for step-by-step instructions.
 
@@ -48,6 +58,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - 📸 **Evidence Upload** - Attach photos/PDFs to reports
 - 💬 **Two-Way Communication** - Chat with administrators anonymously
 - 📊 **Admin Dashboard** - Manage and respond to reports
+- 🤖 **AI Compliance Verification** - AI-powered urgency validation against Philippine Corporate Laws
 - 🎨 **Modern UI** - Beautiful, responsive design with Tailwind CSS
 
 ## 🛠️ Tech Stack
@@ -68,7 +79,10 @@ OpenLine/
 │   └── admin/        # Admin dashboard
 ├── lib/              # Utilities
 │   ├── firebase.ts   # Firebase configuration
-│   └── utils.ts      # Helper functions
+│   ├── utils.ts      # Helper functions
+│   └── ai.ts         # AI compliance check (Gemini)
+├── app/
+│   └── actions.ts    # Server actions (AI check)
 └── types.ts          # TypeScript definitions
 ```
 
@@ -94,6 +108,7 @@ OpenLine/
 - ✅ **Phase 2:** Report Tracking System
 - ✅ **Phase 3:** Admin Dashboard
 - ✅ **Phase 4:** Security & Polish
+- ✅ **Phase 6:** AI Compliance Verification (Gemini AI)
 
 ## 📚 Learn More
 

@@ -5,9 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Report, ReportStatus, Message } from "@/types";
-import { ArrowLeft, Send, Loader2, Image as ImageIcon, Save } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { runAiCheck } from "@/app/actions";
 
 export default function AdminReportDetailPage() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function AdminReportDetailPage() {
   const [sending, setSending] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ReportStatus>("New");
+  const [runningAiCheck, setRunningAiCheck] = useState(false);
 
   useEffect(() => {
     if (!reportId) return;
@@ -150,6 +152,54 @@ export default function AdminReportDetailPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleRunAiCheck = async () => {
+    if (!report?.id) return;
+
+    setRunningAiCheck(true);
+    try {
+      toast.loading("Running AI compliance check...", { id: "ai-check" });
+      
+      // Call server action to get AI result (no Firestore update here)
+      const result = await runAiCheck(
+        report.description,
+        report.category,
+        report.urgency
+      );
+
+      if (result) {
+        // Save to Firestore on client side (with admin auth context)
+        const reportRef = doc(db, "reports", report.id);
+        await updateDoc(reportRef, {
+          aiAnalysis: result,
+          lastUpdated: Date.now(),
+        });
+        
+        toast.success("AI analysis completed!", { id: "ai-check" });
+        // The report will be updated via real-time listener
+      } else {
+        toast.error("AI analysis failed. Please try again.", { id: "ai-check" });
+      }
+    } catch (error: any) {
+      console.error("Error running AI check:", error);
+      toast.error("Failed to run AI check. Please try again.", { id: "ai-check" });
+    } finally {
+      setRunningAiCheck(false);
+    }
+  };
+
+  const getAiAssessmentColor = (assessment: string) => {
+    switch (assessment) {
+      case "High":
+        return "bg-red-100 text-red-800";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "Low":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
   if (loading) {
@@ -288,6 +338,91 @@ export default function AdminReportDetailPage() {
                     />
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Compliance Card */}
+        <div className="mb-4 md:mb-5 lg:mb-6">
+          <div className={`bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6 ${
+            report.aiAnalysis && !report.aiAnalysis.match
+              ? "border-2 border-red-300"
+              : report.aiAnalysis && report.aiAnalysis.match
+              ? "border-2 border-green-300"
+              : "border border-gray-200"
+          }`}>
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <Bot className="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
+              <h2 className="text-base md:text-lg font-bold text-gray-900">AI Compliance Verification</h2>
+            </div>
+
+            {report.aiAnalysis ? (
+              <div className="space-y-3 md:space-y-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  {report.aiAnalysis.match ? (
+                    <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-600 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-xs md:text-sm text-gray-600 mb-1">
+                      <span className="font-semibold">User Claimed:</span>{" "}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
+                        {report.urgency}
+                      </span>
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-600">
+                      <span className="font-semibold">AI Assessment:</span>{" "}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getAiAssessmentColor(report.aiAnalysis.aiAssessment)}`}>
+                        {report.aiAnalysis.aiAssessment}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {!report.aiAnalysis.match && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
+                    <p className="text-xs md:text-sm font-semibold text-red-800 mb-1">
+                      ⚠️ Discrepancy Detected
+                    </p>
+                    <p className="text-xs md:text-sm text-red-700">
+                      User's urgency assessment does not match AI's compliance-based analysis.
+                    </p>
+                  </div>
+                )}
+
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 md:p-4">
+                  <p className="text-xs md:text-sm font-semibold text-indigo-900 mb-1.5">
+                    Law Cited: <span className="font-bold">{report.aiAnalysis.lawCited}</span>
+                  </p>
+                  <p className="text-xs md:text-sm text-indigo-800">
+                    {report.aiAnalysis.reason}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 md:py-6">
+                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
+                  Run AI compliance check to verify urgency against Philippine Corporate Laws
+                </p>
+                <button
+                  onClick={handleRunAiCheck}
+                  disabled={runningAiCheck}
+                  className="flex items-center gap-2 mx-auto px-4 md:px-6 py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
+                >
+                  {runningAiCheck ? (
+                    <>
+                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                      <span>Analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bot className="w-4 h-4 md:w-5 md:h-5" />
+                      <span>🤖 Run AI Compliance Check</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
           </div>
