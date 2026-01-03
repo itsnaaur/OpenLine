@@ -350,12 +350,12 @@ export default function AdminReportDetailPage() {
         </div>
       </header>
 
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
         <div className="grid lg:grid-cols-2 gap-6 h-full">
           {/* Left Side - Report Details & AI Compliance */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 min-w-0">
             {/* Report Header */}
-            <Card variant="elevated" className="p-6">
+            <Card variant="elevated" className="p-4 md:p-6 overflow-x-hidden">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Report Details</h1>
@@ -377,7 +377,7 @@ export default function AdminReportDetailPage() {
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value as ReportStatus)}
-                    className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                    className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-sm md:text-base"
                     disabled={updatingStatus}
                   >
                     <option value="New">New</option>
@@ -421,8 +421,8 @@ export default function AdminReportDetailPage() {
               {/* Description */}
               <div className="mb-6">
                 <p className="text-sm text-gray-600 mb-2">Description</p>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{report.description}</p>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 overflow-x-auto">
+                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed break-words">{report.description}</p>
                 </div>
               </div>
 
@@ -460,7 +460,7 @@ export default function AdminReportDetailPage() {
             {/* AI Compliance Card */}
             <Card 
               variant="elevated" 
-              className={`p-6 ${
+              className={`p-4 md:p-6 overflow-x-hidden ${
                 report.aiAnalysis && !report.aiAnalysis.match
                   ? "border-2 border-red-300"
                   : report.aiAnalysis && report.aiAnalysis.match
@@ -540,7 +540,7 @@ export default function AdminReportDetailPage() {
                             <select
                               value={selectedCategory}
                               onChange={(e) => setSelectedCategory(e.target.value)}
-                              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                              className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-sm md:text-base"
                               disabled={updatingCategory}
                             >
                               <option value="Safety">Safety</option>
@@ -575,7 +575,7 @@ export default function AdminReportDetailPage() {
                             <select
                               value={selectedUrgency}
                               onChange={(e) => setSelectedUrgency(e.target.value)}
-                              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                              className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-sm md:text-base"
                               disabled={updatingUrgency}
                             >
                               <option value="Low">Low</option>
@@ -601,11 +601,11 @@ export default function AdminReportDetailPage() {
                     </div>
                   )}
 
-                  <div className="bg-[#e6f4f8]/80 border border-[#0da2cb]/30 rounded-lg p-4">
-                    <p className="text-sm font-semibold text-[#116aae] mb-2">
+                  <div className="bg-[#e6f4f8]/80 border border-[#0da2cb]/30 rounded-lg p-4 overflow-x-auto">
+                    <p className="text-sm font-semibold text-[#116aae] mb-2 break-words">
                       Law Cited: <span className="font-bold text-[#224092]">{report.aiAnalysis.lawCited}</span>
                     </p>
-                    <p className="text-sm text-[#224092] leading-relaxed">
+                    <p className="text-sm text-[#224092] leading-relaxed break-words">
                       {report.aiAnalysis.reason}
                     </p>
                   </div>
@@ -630,8 +630,8 @@ export default function AdminReportDetailPage() {
           </div>
 
           {/* Right Side - Messages */}
-          <div className="flex flex-col">
-            <Card variant="elevated" className="p-6 flex flex-col h-full">
+          <div className="flex flex-col min-w-0">
+            <Card variant="elevated" className="p-4 md:p-6 flex flex-col h-full overflow-x-hidden">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Messages</h2>
 
               <div className="flex-1 space-y-4 mb-6 overflow-y-auto pr-2">
@@ -642,7 +642,7 @@ export default function AdminReportDetailPage() {
                       className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-lg p-4 ${
+                        className={`max-w-[85%] rounded-lg p-3 md:p-4 overflow-x-auto ${
                           message.sender === "admin"
                             ? "bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white"
                             : "bg-gray-100 text-gray-900"
@@ -660,7 +660,7 @@ export default function AdminReportDetailPage() {
                             {formatDate(message.timestamp)}
                           </span>
                         </div>
-                        <p className={`text-sm whitespace-pre-wrap leading-relaxed ${
+                        <p className={`text-sm whitespace-pre-wrap leading-relaxed break-words ${
                           message.sender === "admin" ? "text-white" : "text-gray-900"
                         }`}>
                           {message.text}

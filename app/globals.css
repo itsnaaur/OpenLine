@@ -60,6 +60,23 @@ html {
   input, select, textarea {
     font-size: 16px !important;
   }
+  
+  /* Prevent horizontal overflow on mobile */
+  * {
+    max-width: 100%;
+  }
+  
+  /* Ensure proper word wrapping */
+  p, div, span {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Make select dropdowns more mobile-friendly */
+  select {
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+  }
 }
 
 /* Custom animations */
