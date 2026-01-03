@@ -28,6 +28,11 @@ export default function AdminLayout({
 
     // Redirect to login if authenticated but not admin
     if (!loading && user && !isAdmin) {
+      console.log("Admin access denied:", {
+        email: user.email,
+        isAdmin: isAdmin,
+        loading: loading
+      });
       router.push("/admin/login");
       // Optionally show a toast message
       // toast.error("Access denied. Admin privileges required.");
