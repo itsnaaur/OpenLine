@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Evidence files - stored in evidence/ folder
+    match /evidence/{fileName} {
+      // Allow anyone to upload evidence (for anonymous reports)
+      // But enforce file size and type restrictions
+      allow write: if request.resource.size < 5 * 1024 * 1024  // 5MB limit
+                   && (request.resource.contentType.matches('image/.*') 
+                       || request.resource.contentType == 'application/pdf')
+                   && fileName.matches('.*\\.(jpg|jpeg|png|pdf)$');
+      
+      // SECURITY: Restrict reads to prevent unauthorized access
+      // Option 1: Only allow reads by authenticated admins (RECOMMENDED for production)
+      // Uncomment the line below and comment out the public read line for maximum security
+      // allow read: if request.auth != null && request.auth.token.admin == true;
+      
+      // Option 2: Allow public reads (current - for development)
+      // WARNING: This makes evidence files publicly accessible via URL
+      // For production, use Option 1 or implement signed URLs via Cloud Functions
+      allow read: if true;
+      
+      // Only admins can delete evidence
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

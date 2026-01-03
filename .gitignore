@@ -49,6 +49,11 @@ lerna-debug.log*
 .env.production.local
 .env*.local
 
+# Firebase service account keys (CRITICAL - Never commit these!)
+serviceAccountKey.json
+*-serviceAccountKey.json
+firebase-adminsdk-*.json
+
 # vercel
 .vercel
 

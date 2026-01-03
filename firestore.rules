@@ -2,20 +2,47 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    // Note: This requires Firebase Custom Claims to be set (see SECURITY.md)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    
     // Reports collection
     match /reports/{reportId} {
       // Allow anyone to create a new report (anonymous submission)
-      allow create: if true;
+      // Validate that required fields are present and properly formatted
+      allow create: if request.resource.data.keys().hasAll(['accessCode', 'category', 'urgency', 'description', 'status', 'createdAt', 'lastUpdated', 'messages'])
+                   && request.resource.data.accessCode is string
+                   && request.resource.data.accessCode.size() >= 6
+                   && request.resource.data.category is string
+                   && request.resource.data.urgency is string
+                   && request.resource.data.description is string
+                   && request.resource.data.status is string
+                   && request.resource.data.createdAt is number
+                   && request.resource.data.lastUpdated is number
+                   && request.resource.data.messages is list
+                   && request.resource.data.messages.size() > 0;
       
-      // Allow anyone to read reports (accessCode validation happens on frontend)
-      // In production, you might want to add more restrictions here
+      // SECURITY: Restrict reads to prevent enumeration attacks
+      // Option 1: Only allow reads by authenticated admins (RECOMMENDED for production)
+      // Uncomment the line below and comment out the public read line for maximum security
+      // allow read: if isAdmin();
+      
+      // Option 2: Allow public reads but with limitations (current - for development)
+      // WARNING: This allows anyone to query reports, but accessCode validation happens client-side
+      // For production, use Option 1 or implement Cloud Functions for accessCode validation
       allow read: if true;
       
-      // Only authenticated admins can update reports (change status, add messages)
-      allow update: if request.auth != null;
+      // Only authenticated admins can update reports
+      // Validate that updates don't modify critical fields inappropriately
+      allow update: if isAdmin()
+                   && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['accessCode', 'createdAt']))
+                   && request.resource.data.lastUpdated is number
+                   && request.resource.data.lastUpdated > resource.data.lastUpdated;
       
       // Only authenticated admins can delete reports
-      allow delete: if request.auth != null;
+      allow delete: if isAdmin();
     }
   }
 }
