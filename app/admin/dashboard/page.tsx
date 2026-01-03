@@ -1,5 +1,9 @@
 "use client";
 
+// Force dynamic rendering to prevent build-time Firebase initialization
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";

@@ -14,18 +14,87 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (only if not already initialized)
-let app: FirebaseApp;
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApps()[0];
+// Check if Firebase config is valid (not undefined or empty)
+const hasValidConfig = 
+  firebaseConfig.apiKey && 
+  firebaseConfig.projectId && 
+  firebaseConfig.apiKey !== 'undefined' &&
+  firebaseConfig.projectId !== 'undefined' &&
+  firebaseConfig.apiKey.trim() !== '' &&
+  firebaseConfig.projectId.trim() !== '';
+
+// Lazy initialization - only initialize when actually accessed
+let app: FirebaseApp | null = null;
+let _db: Firestore | null = null;
+let _storage: FirebaseStorage | null = null;
+let _auth: Auth | null = null;
+
+function getApp(): FirebaseApp {
+  if (!app) {
+    if (!hasValidConfig) {
+      // During build, create a minimal config to prevent errors
+      // This will fail at runtime if env vars are missing, which is expected
+      const buildConfig = {
+        apiKey: 'build-time-placeholder',
+        authDomain: 'placeholder',
+        projectId: 'placeholder',
+        storageBucket: 'placeholder',
+        messagingSenderId: 'placeholder',
+        appId: 'placeholder',
+      };
+      app = initializeApp(buildConfig);
+    } else {
+      if (getApps().length === 0) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApps()[0];
+      }
+    }
+  }
+  return app;
 }
 
-// Initialize services
-export const db: Firestore = getFirestore(app);
-export const storage: FirebaseStorage = getStorage(app);
-export const auth: Auth = getAuth(app);
+// Lazy getters that only initialize when accessed (client-side)
+function getDb(): Firestore {
+  if (!_db) {
+    _db = getFirestore(getApp());
+  }
+  return _db;
+}
 
-export default app;
+function getStorageInstance(): FirebaseStorage {
+  if (!_storage) {
+    _storage = getStorage(getApp());
+  }
+  return _storage;
+}
+
+function getAuthInstance(): Auth {
+  if (!_auth) {
+    _auth = getAuth(getApp());
+  }
+  return _auth;
+}
+
+// Export with getters - these will only initialize when actually used
+// This prevents build-time errors when env vars are not set
+export const db = new Proxy({} as Firestore, {
+  get(_target, prop) {
+    return (getDb() as any)[prop];
+  }
+});
+
+export const storage = new Proxy({} as FirebaseStorage, {
+  get(_target, prop) {
+    return (getStorageInstance() as any)[prop];
+  }
+});
+
+export const auth = new Proxy({} as Auth, {
+  get(_target, prop) {
+    return (getAuthInstance() as any)[prop];
+  }
+});
+
+export default getApp;
 
