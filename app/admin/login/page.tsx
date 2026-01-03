@@ -27,9 +27,28 @@ export default function AdminLoginPage() {
 
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Login successful!");
-      router.push("/admin/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Force token refresh to get admin claim
+      const idTokenResult = await userCredential.user.getIdTokenResult(true);
+      const isAdmin = idTokenResult.claims.admin === true;
+      
+      console.log("Login - Admin check:", {
+        email: userCredential.user.email,
+        isAdmin: isAdmin,
+        claims: idTokenResult.claims
+      });
+      
+      if (isAdmin) {
+        toast.success("Login successful!");
+        // Small delay to ensure token is refreshed
+        setTimeout(() => {
+          router.push("/admin/dashboard");
+        }, 500);
+      } else {
+        toast.error("Access denied. Admin privileges required. Please contact administrator.");
+        await signOut(auth);
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       let errorMessage = "Failed to login. Please check your credentials.";
