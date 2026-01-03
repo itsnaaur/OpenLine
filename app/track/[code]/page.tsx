@@ -199,8 +199,8 @@ export default function ReportDetailPage() {
             </div>
           </Card>
         </div>
+        <Footer />
       </div>
-      <Footer />
     );
   }
 
@@ -374,6 +374,7 @@ export default function ReportDetailPage() {
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
