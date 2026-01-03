@@ -118,50 +118,114 @@ export default function SubmitReportPage() {
   if (accessCode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] background-pattern background-grid flex flex-col">
-        <Header showBackButton={true} backHref="/" backLabel="Back to Home" />
-        <div className="flex-1 flex items-center justify-center p-4 md:p-6 relative">
-          <div className="hidden md:block absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 right-20 w-96 h-96 bg-[#0dc7e4]/15 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 left-20 w-96 h-96 bg-[#116aae]/15 rounded-full blur-3xl"></div>
+        {/* Header */}
+        <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+                <Image
+                  src="/OpenLine (Icon and Word Logo).png"
+                  alt="OpenLine Logo"
+                  width={180}
+                  height={50}
+                  className="h-8 md:h-10 w-auto"
+                  priority
+                />
+              </Link>
+              
+              <Link href="/">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back to Home</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Large animated gradient circles for subtle background */}
+            <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-gradient-to-br from-[#0dc7e4]/15 via-[#116aae]/10 to-[#0da2cb]/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }}></div>
+            <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-[#116aae]/12 via-[#0da2cb]/10 to-[#0dc7e4]/12 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
+            
+            {/* Encouraging words with fade in/out animation */}
+            <div className="absolute top-1/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
+              You're Brave
+            </div>
+            <div className="absolute top-1/4 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1s' }}>
+              Your Voice Matters
+            </div>
+            <div className="absolute top-1/3 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
+              Stay Safe
+            </div>
+            <div className="absolute top-2/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3s' }}>
+              Thank You
+            </div>
+            <div className="absolute top-1/2 left-1/5 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '4s' }}>
+              Courage
+            </div>
+            <div className="absolute top-3/5 right-1/4 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '5s' }}>
+              You're Protected
+            </div>
+            <div className="absolute bottom-2/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '6s' }}>
+              Support
+            </div>
+            <div className="absolute bottom-1/3 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '7s' }}>
+              Anonymous
+            </div>
+            <div className="absolute bottom-1/4 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '8s' }}>
+              You Matter
+            </div>
+            <div className="absolute bottom-1/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '9s' }}>
+              Secure
+            </div>
+            <div className="absolute top-2/3 left-1/3 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '10s' }}>
+              Help is Here
+            </div>
+            <div className="absolute top-3/4 right-1/3 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '11s' }}>
+              We Care
+            </div>
           </div>
 
-          <Card variant="elevated" className="w-full max-w-2xl p-8 md:p-12 text-center relative z-10">
-            <div className="mb-8">
-              <div className="mx-auto w-24 h-24 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-                <CheckCircle2 className="w-14 h-14 text-white" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-                Report Submitted Successfully!
-              </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-2">
-                Thank you for your courage in speaking up.
-              </p>
-              <p className="text-base text-gray-600">
-                Your report has been received and will be reviewed. Your identity remains completely anonymous.
-              </p>
+          <Card variant="elevated" className="w-full max-w-md p-5 md:p-6 text-center relative z-10">
+            {/* Success Icon */}
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-xl flex items-center justify-center mb-3 shadow-lg">
+              <CheckCircle2 className="w-10 h-10 text-white" />
             </div>
 
-            <Card variant="outlined" className="p-8 mb-8 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-[#0da2cb]/50">
-              <p className="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wider">Your Access Code</p>
-              <p className="text-5xl md:text-6xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-6 tracking-wider">
+            {/* Title */}
+            <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 mb-2">
+              Report Submitted Successfully!
+            </h1>
+            <p className="text-sm text-gray-600 mb-4">
+              Thank you for your courage. Your report has been received.
+            </p>
+
+            {/* Access Code Card */}
+            <Card variant="outlined" className="p-4 mb-4 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-[#0da2cb]/50">
+              <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Your Access Code</p>
+              <p className="text-2xl md:text-3xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-3 tracking-wider">
                 {accessCode}
               </p>
-              <Button onClick={copyToClipboard} size="lg">
-                <Copy className="w-5 h-5 mr-2" />
+              <Button onClick={copyToClipboard} size="md" className="w-full">
+                <Copy className="w-4 h-4 mr-2" />
                 Copy Access Code
               </Button>
             </Card>
 
-            <div className="space-y-4 mb-8">
+            {/* Action Buttons with more spacing */}
+            <div className="mb-4">
               <Link href={`/track/${accessCode}`}>
-                <Button size="lg" className="w-full">
+                <Button size="md" className="w-full mb-4">
                   Track Your Report
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                size="lg"
+                size="md"
                 onClick={() => {
                   setAccessCode(null);
                   setFormData({ category: "", urgency: "", description: "" });
@@ -173,9 +237,10 @@ export default function SubmitReportPage() {
               </Button>
             </div>
 
-            <div className="p-4 bg-[#e6f4f8]/80 rounded-xl border border-[#0da2cb]/30">
-              <p className="text-sm text-[#224092]">
-                <strong className="text-[#116aae]">Important:</strong> Please save this access code. You&apos;ll need it to track your report and receive updates from administrators.
+            {/* Important Note - more compact */}
+            <div className="p-3 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
+              <p className="text-xs text-[#224092] leading-relaxed">
+                <strong className="text-[#116aae]">Important:</strong> Save this access code to track your report.
               </p>
             </div>
           </Card>
