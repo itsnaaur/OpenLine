@@ -167,6 +167,7 @@ export default function TrackReportPage() {
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

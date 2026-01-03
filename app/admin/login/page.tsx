@@ -8,6 +8,7 @@ import { Lock, Mail, Shield, CheckCircle2, Eye, Sparkles, ArrowLeft } from "luci
 import toast from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
+import Footer from "../../components/Footer";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 
@@ -237,6 +238,7 @@ export default function AdminLoginPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

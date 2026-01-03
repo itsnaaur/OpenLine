@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import Card from "../components/Card";
 import Button from "../components/Button";
 
@@ -245,6 +246,7 @@ export default function SubmitReportPage() {
             </div>
           </Card>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -462,6 +464,7 @@ export default function SubmitReportPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

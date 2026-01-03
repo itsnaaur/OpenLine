@@ -9,6 +9,7 @@ import { Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircl
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { runAiCheck } from "@/app/actions";
+import Footer from "../../../components/Footer";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
 import Link from "next/link";
@@ -704,6 +705,7 @@ export default function AdminReportDetailPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

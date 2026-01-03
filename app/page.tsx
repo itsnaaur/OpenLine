@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FileText, Search, Shield, Lock, ArrowRight, Heart, Users, Eye, CheckCircle2, Sparkles } from "lucide-react";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Card from "./components/Card";
 import Button from "./components/Button";
 
@@ -33,7 +34,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] relative overflow-hidden flex flex-col">
       <Header showNav={true} />
       
       {/* Welcome/Safety-themed background for hero section - more detailed and welcoming */}
@@ -177,19 +178,20 @@ export default function Home() {
         </div>
 
           {/* Sections with grid background */}
-          <div className="background-grid relative z-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8">
-            {/* Why Report Section */}
-            <div className="mb-16 mt-12 md:mt-16">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Why You Should Report
-                </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Your report is powerful. It creates change, protects others, and helps build a better environment for everyone.
-                </p>
-              </div>
+          <div className="background-grid relative z-10 py-8">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Why Report Section */}
+              <div className="mb-16 mt-12 md:mt-16">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Why You Should Report
+                  </h2>
+                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Your report is powerful. It creates change, protects others, and helps build a better environment for everyone.
+                  </p>
+                </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {reasonsToReport.map((reason, index) => (
                   <Card key={index} variant="elevated" hover className="p-6 text-center">
                     <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#116aae] to-[#0da2cb] rounded-xl mb-4 mx-auto shadow-lg">
@@ -386,8 +388,10 @@ export default function Home() {
               </div>
             </Card>
           </div>
+            </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

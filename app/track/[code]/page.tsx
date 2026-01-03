@@ -9,6 +9,7 @@ import { AlertCircle, Send, Loader2, ArrowLeft, Image as ImageIcon } from "lucid
 import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
+import Footer from "../../components/Footer";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
 
@@ -199,6 +200,7 @@ export default function ReportDetailPage() {
           </Card>
         </div>
       </div>
+      <Footer />
     );
   }
 

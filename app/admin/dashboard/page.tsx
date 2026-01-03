@@ -14,6 +14,7 @@ import { LogOut, Eye, Filter, X, FileText, Clock, AlertCircle, LayoutGrid, List 
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import Footer from "../../components/Footer";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
 
