@@ -8,6 +8,22 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   
+  // Exclude functions directory from Next.js compilation
+  webpack: (config, { isServer }) => {
+    // Exclude functions directory from webpack compilation
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/functions/**', '**/node_modules/**'],
+    };
+    return config;
+  },
+  
+  // TypeScript configuration
+  typescript: {
+    // Ignore build errors in functions directory (deployed separately)
+    ignoreBuildErrors: false,
+  },
+  
   // Security headers for production
   async headers() {
     return [
