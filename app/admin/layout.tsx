@@ -34,12 +34,32 @@ export default function AdminLayout({
         email: user.email,
         isAdmin: isAdmin,
         loading: loading,
-        user: user
       });
       
-      // Force sign out and redirect
-      signOut(auth).then(() => {
-        router.push("/admin/login");
+      // Check token directly with detailed logging
+      user.getIdTokenResult(true).then((result) => {
+        console.log("Direct token check in layout:", {
+          admin: result.claims.admin,
+          allClaims: result.claims,
+          email: user.email
+        });
+        
+        // If still not admin after token refresh, sign out
+        if (result.claims.admin !== true) {
+          console.warn("User does not have admin claim. Signing out...");
+          signOut(auth).then(() => {
+            router.push("/admin/login");
+          });
+        } else {
+          // Admin claim found! Force a re-render by updating state
+          console.log("Admin claim found! User should have access.");
+          // The useAuth hook should pick this up on next render
+        }
+      }).catch((error) => {
+        console.error("Error checking token in layout:", error);
+        signOut(auth).then(() => {
+          router.push("/admin/login");
+        });
       });
     }
   }, [user, loading, isAdmin, router, pathname]);
