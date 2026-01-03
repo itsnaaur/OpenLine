@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { getReportByAccessCode, getEvidenceUrl } from "@/lib/api";
 import { Report, Message } from "@/types";
 import { AlertCircle, Send, Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
@@ -32,37 +31,48 @@ export default function ReportDetailPage() {
         setLoading(true);
         setError(null);
 
-        // Use Cloud Functions API for secure access code validation
-        const reportData = await getReportByAccessCode(accessCode.toUpperCase());
-        
-        if (!reportData) {
+        // Query Firestore for report with matching accessCode
+        const q = query(
+          collection(db, "reports"),
+          where("accessCode", "==", accessCode.toUpperCase())
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
           setError("Report not found. Please check your access code.");
           setLoading(false);
           return;
         }
 
-        setReport(reportData as Report);
+        // Get the first (and should be only) document
+        const docSnapshot = querySnapshot.docs[0];
+        const reportData = {
+          id: docSnapshot.id,
+          ...docSnapshot.data(),
+        } as Report;
 
-        // Poll for updates every 5 seconds (since we can't use real-time listeners with restricted rules)
-        const pollInterval = setInterval(async () => {
-          try {
-            const updatedReport = await getReportByAccessCode(accessCode.toUpperCase());
-            if (updatedReport) {
-              setReport(updatedReport as Report);
-            }
-          } catch (err) {
-            // Silently fail polling updates
-            console.error("Error polling for updates:", err);
+        setReport(reportData);
+
+        // Set up real-time listener for this document
+        const reportRef = doc(db, "reports", docSnapshot.id);
+        const unsubscribe = onSnapshot(reportRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const updatedData = {
+              id: snapshot.id,
+              ...snapshot.data(),
+            } as Report;
+            setReport(updatedData);
           }
-        }, 5000);
+        });
 
         setLoading(false);
 
-        // Cleanup polling on unmount
-        return () => clearInterval(pollInterval);
+        // Cleanup listener on unmount
+        return () => unsubscribe();
       } catch (err: any) {
         console.error("Error fetching report:", err);
-        setError(err.message || "Failed to load report. Please try again.");
+        setError("Failed to load report. Please try again.");
         setLoading(false);
       }
     };

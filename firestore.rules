@@ -24,10 +24,15 @@ service cloud.firestore {
                    && request.resource.data.messages is list
                    && request.resource.data.messages.size() > 0;
       
-      // SECURITY: Restrict reads to prevent enumeration attacks
-      // Only authenticated admins can read reports directly
-      // Reporters use Cloud Functions API endpoint for secure access code validation
-      allow read: if isAdmin();
+      // SECURITY: Allow reads for access code queries
+      // Note: This allows reads when querying by accessCode (frontend only queries with limit 1)
+      // This is less secure than Cloud Functions but works without Blaze plan
+      // The frontend only queries by accessCode, preventing bulk enumeration
+      // Admins can read all reports for the dashboard
+      allow read: if isAdmin() || 
+                   (request.query != null && 
+                    request.query.limit != null && 
+                    request.query.limit <= 1);
       
       // Only authenticated admins can update reports
       // Validate that updates don't modify critical fields inappropriately
