@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Lock, Mail, Shield, CheckCircle2, Eye, Sparkles, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";

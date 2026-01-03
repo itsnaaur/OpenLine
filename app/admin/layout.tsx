@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Loader2 } from "lucide-react";
 
 export default function AdminLayout({
@@ -36,7 +38,7 @@ export default function AdminLayout({
       });
       
       // Force sign out and redirect
-      auth.signOut().then(() => {
+      signOut(auth).then(() => {
         router.push("/admin/login");
       });
     }
