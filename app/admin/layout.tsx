@@ -10,7 +10,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,8 +23,16 @@ export default function AdminLayout({
     // Redirect to login if not authenticated
     if (!loading && !user) {
       router.push("/admin/login");
+      return;
     }
-  }, [user, loading, router, pathname]);
+
+    // Redirect to login if authenticated but not admin
+    if (!loading && user && !isAdmin) {
+      router.push("/admin/login");
+      // Optionally show a toast message
+      // toast.error("Access denied. Admin privileges required.");
+    }
+  }, [user, loading, isAdmin, router, pathname]);
 
   // Show loading state while checking auth
   if (loading) {

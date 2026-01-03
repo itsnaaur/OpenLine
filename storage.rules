@@ -12,14 +12,9 @@ service firebase.storage {
                    && fileName.matches('.*\\.(jpg|jpeg|png|pdf)$');
       
       // SECURITY: Restrict reads to prevent unauthorized access
-      // Option 1: Only allow reads by authenticated admins (RECOMMENDED for production)
-      // Uncomment the line below and comment out the public read line for maximum security
-      // allow read: if request.auth != null && request.auth.token.admin == true;
-      
-      // Option 2: Allow public reads (current - for development)
-      // WARNING: This makes evidence files publicly accessible via URL
-      // For production, use Option 1 or implement signed URLs via Cloud Functions
-      allow read: if true;
+      // Only authenticated admins can read evidence files directly
+      // Reporters use Cloud Functions API endpoint for secure signed URL generation
+      allow read: if request.auth != null && request.auth.token.admin == true;
       
       // Only admins can delete evidence
       allow delete: if request.auth != null && request.auth.token.admin == true;

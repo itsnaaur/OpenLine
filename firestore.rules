@@ -25,14 +25,9 @@ service cloud.firestore {
                    && request.resource.data.messages.size() > 0;
       
       // SECURITY: Restrict reads to prevent enumeration attacks
-      // Option 1: Only allow reads by authenticated admins (RECOMMENDED for production)
-      // Uncomment the line below and comment out the public read line for maximum security
-      // allow read: if isAdmin();
-      
-      // Option 2: Allow public reads but with limitations (current - for development)
-      // WARNING: This allows anyone to query reports, but accessCode validation happens client-side
-      // For production, use Option 1 or implement Cloud Functions for accessCode validation
-      allow read: if true;
+      // Only authenticated admins can read reports directly
+      // Reporters use Cloud Functions API endpoint for secure access code validation
+      allow read: if isAdmin();
       
       // Only authenticated admins can update reports
       // Validate that updates don't modify critical fields inappropriately
