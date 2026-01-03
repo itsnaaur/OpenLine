@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   description: "Report issues anonymously and safely",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +35,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-center"
+          containerClassName="!top-4"
+          toastOptions={{
+            className: "!rounded-lg !shadow-lg",
+            duration: 4000,
+          }}
+        />
       </body>
     </html>
   );

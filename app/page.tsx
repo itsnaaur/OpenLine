@@ -114,11 +114,11 @@ export default function Home() {
         {/* Admin Login Button */}
       <Link
         href="/admin/login"
-          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md shadow-lg hover:shadow-xl border border-gray-200/50 transition-all hover:scale-110 group z-50"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md shadow-lg hover:shadow-xl border border-gray-200/50 transition-all hover:scale-110 active:scale-95 group z-50 touch-manipulation"
         title="Admin Login"
         aria-label="Admin Login"
       >
-          <Lock className="w-5 h-5 text-gray-500/70 group-hover:text-[#116aae] transition-colors" />
+          <Lock className="w-6 h-6 md:w-5 md:h-5 text-gray-500/70 group-hover:text-[#116aae] transition-colors" />
       </Link>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 relative z-10">

@@ -676,23 +676,28 @@ export default function AdminReportDetailPage() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="flex gap-3 mt-auto">
+              <form onSubmit={handleSendMessage} className="flex gap-2 md:gap-3 mt-auto items-stretch">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your reply..."
-                  className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                  className="flex-1 px-4 py-3 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-base min-w-0"
                   disabled={sending}
                 />
                 <Button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
                   isLoading={sending}
-                  className="flex items-center gap-2"
+                  size="md"
+                  className="flex items-center gap-1 md:gap-2 shrink-0 px-3 md:px-4"
                 >
-                  {!sending && <Send className="w-4 h-4" />}
-                  Send
+                  {!sending && (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span className="hidden sm:inline">Send</span>
+                    </>
+                  )}
                 </Button>
               </form>
             </Card>
