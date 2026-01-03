@@ -23,78 +23,54 @@ const hasValidConfig =
   firebaseConfig.apiKey.trim() !== '' &&
   firebaseConfig.projectId.trim() !== '';
 
-// Lazy initialization - only initialize when actually accessed
-let app: FirebaseApp | null = null;
-let _db: Firestore | null = null;
-let _storage: FirebaseStorage | null = null;
-let _auth: Auth | null = null;
-
-function getApp(): FirebaseApp {
-  if (!app) {
-    if (!hasValidConfig) {
-      // During build, create a minimal config to prevent errors
-      // This will fail at runtime if env vars are missing, which is expected
-      const buildConfig = {
-        apiKey: 'build-time-placeholder',
-        authDomain: 'placeholder',
-        projectId: 'placeholder',
-        storageBucket: 'placeholder',
-        messagingSenderId: 'placeholder',
-        appId: 'placeholder',
-      };
-      app = initializeApp(buildConfig);
-    } else {
-      if (getApps().length === 0) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApps()[0];
-      }
-    }
+// Initialize Firebase (only if not already initialized)
+let app: FirebaseApp;
+if (getApps().length === 0) {
+  if (!hasValidConfig && typeof window === 'undefined') {
+    // During build, create a minimal config to prevent errors
+    // This will be replaced at runtime
+    app = initializeApp({
+      apiKey: 'build-time-placeholder',
+      authDomain: 'placeholder',
+      projectId: 'placeholder',
+      storageBucket: 'placeholder',
+      messagingSenderId: 'placeholder',
+      appId: 'placeholder',
+    });
+  } else {
+    app = initializeApp(firebaseConfig);
   }
-  return app;
+} else {
+  app = getApps()[0];
 }
 
-// Lazy getters that only initialize when accessed (client-side)
-function getDb(): Firestore {
-  if (!_db) {
-    _db = getFirestore(getApp());
+// Initialize services
+// Only initialize on client side to prevent build errors
+let _db: Firestore | undefined;
+let _storage: FirebaseStorage | undefined;
+let _auth: Auth | undefined;
+
+if (typeof window !== 'undefined') {
+  // Client-side: Initialize normally
+  _db = getFirestore(app);
+  _storage = getStorage(app);
+  _auth = getAuth(app);
+} else {
+  // Server-side: Create placeholder instances that will be replaced at runtime
+  // This prevents build errors but these won't work on server
+  try {
+    _db = getFirestore(app);
+    _storage = getStorage(app);
+    _auth = getAuth(app);
+  } catch (e) {
+    // Ignore errors during build
   }
-  return _db;
 }
 
-function getStorageInstance(): FirebaseStorage {
-  if (!_storage) {
-    _storage = getStorage(getApp());
-  }
-  return _storage;
-}
+// Export services
+export const db: Firestore = _db!;
+export const storage: FirebaseStorage = _storage!;
+export const auth: Auth = _auth!;
 
-function getAuthInstance(): Auth {
-  if (!_auth) {
-    _auth = getAuth(getApp());
-  }
-  return _auth;
-}
-
-// Export with getters - these will only initialize when actually used
-// This prevents build-time errors when env vars are not set
-export const db = new Proxy({} as Firestore, {
-  get(_target, prop) {
-    return (getDb() as any)[prop];
-  }
-});
-
-export const storage = new Proxy({} as FirebaseStorage, {
-  get(_target, prop) {
-    return (getStorageInstance() as any)[prop];
-  }
-});
-
-export const auth = new Proxy({} as Auth, {
-  get(_target, prop) {
-    return (getAuthInstance() as any)[prop];
-  }
-});
-
-export default getApp;
+export default app;
 
