@@ -8,7 +8,9 @@ import { Report, Message } from "@/types";
 import { AlertCircle, Send, Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
-import Header from "../../components/Header";
+import Link from "next/link";
+import Card from "../../components/Card";
+import Button from "../../components/Button";
 
 export default function ReportDetailPage() {
   const params = useParams();
@@ -158,27 +160,43 @@ export default function ReportDetailPage() {
   if (error || !report) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
-        <Header />
+        <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+                <Image
+                  src="/OpenLine (Icon and Word Logo).png"
+                  alt="OpenLine Logo"
+                  width={180}
+                  height={50}
+                  className="h-8 md:h-10 w-auto"
+                  priority
+                />
+              </Link>
+            </div>
+          </div>
+        </header>
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+          <Card variant="elevated" className="max-w-md w-full p-8 text-center">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Not Found</h1>
             <p className="text-gray-600 mb-6">{error || "The report you're looking for doesn't exist."}</p>
             <div className="space-y-3">
-              <button
+              <Button
                 onClick={() => router.push("/track")}
-                className="w-full bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white py-2 px-4 rounded-lg hover:from-[#224092] hover:to-[#0d87bc] transition-colors"
+                className="w-full"
               >
                 Try Another Code
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => router.push("/")}
-                className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                className="w-full"
               >
                 Go Home
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     );
@@ -186,12 +204,36 @@ export default function ReportDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
-      <Header showBackButton={true} backHref="/track" backLabel="Back to Track" />
+      <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+              <Image
+                src="/OpenLine (Icon and Word Logo).png"
+                alt="OpenLine Logo"
+                width={180}
+                height={50}
+                className="h-8 md:h-10 w-auto"
+                priority
+              />
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <Link href="/track">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back to Track</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
       <div className="flex-1 py-4 md:py-6 lg:py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          {/* Report Details */}
           <div className="mb-4 md:mb-5 lg:mb-6">
-            <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+            <Card variant="elevated" className="p-6">
               <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Details</h1>
@@ -256,14 +298,14 @@ export default function ReportDetailPage() {
                 )}
                 </div>
               )}
-            </div>
+            </Card>
           </div>
 
           {/* Chat Section */}
-          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
+          <Card variant="elevated" className="p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Messages</h2>
             
-            <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+            <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
             {report.messages && report.messages.length > 0 ? (
               report.messages.map((message, index) => (
                 <div
@@ -271,21 +313,29 @@ export default function ReportDetailPage() {
                   className={`flex ${message.sender === "admin" ? "justify-start" : "justify-end"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
+                    className={`max-w-[85%] rounded-lg p-4 ${
                       message.sender === "admin"
-                        ? "bg-[#e6f4f8] text-gray-900"
-                        : "bg-gray-100 text-gray-900"
+                        ? "bg-gray-100 text-gray-900"
+                        : "bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white"
                     }`}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-xs font-bold ${
+                        message.sender === "admin" ? "text-gray-600" : "text-white/90"
+                      }`}>
                         {message.sender === "admin" ? "Administrator" : "You"}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className={`text-xs ${
+                        message.sender === "admin" ? "text-gray-500" : "text-white/70"
+                      }`}>
                         {formatDate(message.timestamp)}
                       </span>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                    <p className={`text-sm whitespace-pre-wrap leading-relaxed ${
+                      message.sender === "admin" ? "text-gray-900" : "text-white"
+                    }`}>
+                      {message.text}
+                    </p>
                   </div>
                 </div>
               ))
@@ -304,20 +354,21 @@ export default function ReportDetailPage() {
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
               disabled={sending}
             />
-            <button
+            <Button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="px-6 py-2 bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white rounded-lg hover:from-[#224092] hover:to-[#0d87bc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              isLoading={sending}
+              className="flex items-center gap-2"
             >
-              {sending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
+              {!sending && (
+                <>
+                  <Send className="w-4 h-4" />
+                  Send
+                </>
               )}
-              Send
-            </button>
+            </Button>
             </form>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

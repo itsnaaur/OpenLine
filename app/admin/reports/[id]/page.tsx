@@ -5,10 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Report, ReportStatus, Message, UrgencyLevel, ReportCategory } from "@/types";
-import { ArrowLeft, Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircle2, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { runAiCheck } from "@/app/actions";
+import Card from "../../../components/Card";
+import Button from "../../../components/Button";
+import Link from "next/link";
 
 export default function AdminReportDetailPage() {
   const params = useParams();
@@ -153,7 +156,7 @@ export default function AdminReportDetailPage() {
       case "Medium":
         return "bg-yellow-100 text-yellow-800";
       case "Low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#e6f4f8] text-[#116aae]";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -287,7 +290,7 @@ export default function AdminReportDetailPage() {
       case "Medium":
         return "bg-yellow-100 text-yellow-800";
       case "Low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#e6f4f8] text-[#116aae]";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -295,9 +298,9 @@ export default function AdminReportDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] background-pattern background-grid flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin text-[#116aae] mx-auto mb-4" />
           <p className="text-gray-600">Loading report...</p>
         </div>
       </div>
@@ -306,385 +309,396 @@ export default function AdminReportDetailPage() {
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] background-pattern background-grid flex items-center justify-center p-4">
+        <Card variant="elevated" className="max-w-md w-full p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Not Found</h1>
-          <p className="text-gray-600 mb-6">The report you're looking for doesn't exist.</p>
-          <button
-            onClick={() => router.push("/admin/dashboard")}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-          >
+          <p className="text-gray-600 mb-6">The report you&apos;re looking for doesn&apos;t exist.</p>
+          <Button onClick={() => router.push("/admin/dashboard")} className="w-full">
             Back to Dashboard
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-4 md:py-6 lg:py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-4 md:mb-5 lg:mb-6">
-          <button
-            onClick={() => router.push("/admin/dashboard")}
-            className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 mb-3 md:mb-4 text-xs md:text-sm"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
-            Back to Dashboard
-          </button>
-          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
-            <div className="flex items-start justify-between mb-3 md:mb-4">
-              <div>
-                <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">Report Details</h1>
-                <p className="text-xs md:text-sm text-gray-500">
-                  Access Code: <span className="font-mono font-semibold">{report.accessCode}</span>
-                </p>
-              </div>
-              <div className={`px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg border-2 font-semibold text-xs md:text-sm ${getStatusColor(report.status)}`}>
-                {report.status}
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#f0f9fc] to-[#e6f4f8] background-pattern background-grid flex flex-col">
+      {/* Header */}
+      <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+              <Image
+                src="/OpenLine (Icon and Word Logo).png"
+                alt="OpenLine Logo"
+                width={180}
+                height={50}
+                className="h-8 md:h-10 w-auto"
+                priority
+              />
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <Link href="/admin/dashboard">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back to Dashboard</span>
+                </Button>
+              </Link>
             </div>
-
-            {/* Status Update Section */}
-            <div className="mb-4 md:mb-5 p-3 md:p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
-                Update Status
-              </label>
-              <div className="flex items-center gap-2 md:gap-3">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value as ReportStatus)}
-                  className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
-                  disabled={updatingStatus}
-                >
-                  <option value="New">New</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Resolved">Resolved</option>
-                </select>
-                <button
-                  onClick={handleStatusUpdate}
-                  disabled={selectedStatus === report.status || updatingStatus}
-                  className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm"
-                >
-                  {updatingStatus ? (
-                    <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
-                  ) : (
-                    <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  )}
-                  <span className="hidden sm:inline">Update</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Category</p>
-                <p className="font-medium text-gray-900 text-sm md:text-base">{report.category}</p>
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Urgency</p>
-                <span className={`inline-block px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-medium ${getUrgencyColor(report.urgency)}`}>
-                  {report.urgency}
-                </span>
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Submitted</p>
-                <p className="font-medium text-gray-900 text-sm md:text-base">{formatDate(report.createdAt)}</p>
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Last Updated</p>
-                <p className="font-medium text-gray-900 text-sm md:text-base">{formatDate(report.lastUpdated)}</p>
-              </div>
-            </div>
-
-            <div className="mb-3 md:mb-4">
-              <p className="text-xs md:text-sm text-gray-500 mb-1 md:mb-1.5">Description</p>
-              <p className="text-gray-900 whitespace-pre-wrap text-sm md:text-base">{report.description}</p>
-            </div>
-
-            {report.evidenceUrl && (
-              <div className="mt-3 md:mt-4">
-                <p className="text-xs md:text-sm text-gray-500 mb-1.5 md:mb-2">Evidence</p>
-                {report.evidenceUrl.endsWith('.pdf') ? (
-                  <div className="border border-gray-200 rounded-lg p-3 md:p-4 bg-gray-50">
-                    <a
-                      href={report.evidenceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 md:gap-2 text-indigo-600 hover:text-indigo-700 text-xs md:text-sm"
-                    >
-                      <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
-                      <span>View PDF Evidence</span>
-                    </a>
-                  </div>
-                ) : (
-                  <div className="relative w-full h-48 md:h-56 lg:h-64 rounded-lg overflow-hidden border border-gray-200">
-                    <Image
-                      src={report.evidenceUrl}
-                      alt="Evidence"
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
+      </header>
 
-        {/* AI Compliance Card */}
-        <div className="mb-4 md:mb-5 lg:mb-6">
-          <div className={`bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6 ${
-            report.aiAnalysis && !report.aiAnalysis.match
-              ? "border-2 border-red-300"
-              : report.aiAnalysis && report.aiAnalysis.match
-              ? "border-2 border-green-300"
-              : "border border-gray-200"
-          }`}>
-            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-              <Bot className="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
-              <h2 className="text-base md:text-lg font-bold text-gray-900">AI Compliance Verification</h2>
-            </div>
-
-            {report.aiAnalysis ? (
-              <div className="space-y-3 md:space-y-4">
-                <div className="flex items-center gap-2 md:gap-3">
-                  {report.aiAnalysis.match ? (
-                    <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0" />
-                  ) : (
-                    <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-600 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 space-y-1.5">
-                    {/* Category Assessment */}
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-600 mb-0.5">
-                        <span className="font-semibold">Category:</span>{" "}
-                        <span className="text-gray-900">{report.category}</span>
-                        {!report.aiAnalysis.categoryMatch && (
-                          <>
-                            {" → "}
-                            <span className="font-semibold text-red-600">{report.aiAnalysis.categoryAssessment}</span>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                    {/* Urgency Assessment */}
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-600 mb-0.5">
-                        <span className="font-semibold">Urgency:</span>{" "}
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
-                          {report.urgency}
-                        </span>
-                        {!report.aiAnalysis.urgencyMatch && (
-                          <>
-                            {" → "}
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getAiAssessmentColor(report.aiAnalysis.aiAssessment)}`}>
-                              {report.aiAnalysis.aiAssessment}
-                            </span>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {!report.aiAnalysis.match && (
-                  <div className="space-y-3 md:space-y-4">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
-                      <p className="text-xs md:text-sm font-semibold text-red-800 mb-1">
-                        ⚠️ Discrepancy Detected
-                      </p>
-                      <p className="text-xs md:text-sm text-red-700">
-                        {!report.aiAnalysis.categoryMatch && !report.aiAnalysis.urgencyMatch
-                          ? "Category and urgency do not match AI's compliance-based analysis."
-                          : !report.aiAnalysis.categoryMatch
-                          ? "Category does not match AI's compliance-based analysis."
-                          : "Urgency does not match AI's compliance-based analysis."}
-                      </p>
-                    </div>
-
-                    {/* Update Category Section (if mismatch) */}
-                    {!report.aiAnalysis.categoryMatch && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4">
-                        <p className="text-xs md:text-sm font-semibold text-yellow-900 mb-2">
-                          Update Category to Match AI Assessment
-                        </p>
-                        <div className="flex items-center gap-2 md:gap-3">
-                          <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-xs md:text-sm"
-                            disabled={updatingCategory}
-                          >
-                            <option value="Safety">Safety</option>
-                            <option value="Harassment">Harassment</option>
-                            <option value="Facility Issue">Facility Issue</option>
-                            <option value="Suggestion">Suggestion</option>
-                          </select>
-                          <button
-                            onClick={handleUpdateCategory}
-                            disabled={selectedCategory === report.category || updatingCategory}
-                            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
-                          >
-                            {updatingCategory ? (
-                              <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
-                            ) : (
-                              <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                            )}
-                            <span className="hidden sm:inline">Update Category</span>
-                          </button>
-                        </div>
-                        <p className="text-xs text-yellow-800 mt-2">
-                          This will notify the reporter about the change with the law cited.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Update Urgency Section (if mismatch) */}
-                    {!report.aiAnalysis.urgencyMatch && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4">
-                        <p className="text-xs md:text-sm font-semibold text-yellow-900 mb-2">
-                          Update Urgency to Match AI Assessment
-                        </p>
-                        <div className="flex items-center gap-2 md:gap-3">
-                          <select
-                            value={selectedUrgency}
-                            onChange={(e) => setSelectedUrgency(e.target.value)}
-                            className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-xs md:text-sm"
-                            disabled={updatingUrgency}
-                          >
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                          </select>
-                          <button
-                            onClick={handleUpdateUrgency}
-                            disabled={selectedUrgency === report.urgency || updatingUrgency}
-                            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
-                          >
-                            {updatingUrgency ? (
-                              <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
-                            ) : (
-                              <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                            )}
-                            <span className="hidden sm:inline">Update Urgency</span>
-                          </button>
-                        </div>
-                        <p className="text-xs text-yellow-800 mt-2">
-                          This will notify the reporter about the change with the law cited.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 md:p-4">
-                  <p className="text-xs md:text-sm font-semibold text-indigo-900 mb-1.5">
-                    Law Cited: <span className="font-bold">{report.aiAnalysis.lawCited}</span>
-                  </p>
-                  <p className="text-xs md:text-sm text-indigo-800">
-                    {report.aiAnalysis.reason}
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid lg:grid-cols-2 gap-6 h-full">
+          {/* Left Side - Report Details & AI Compliance */}
+          <div className="flex flex-col gap-6">
+            {/* Report Header */}
+            <Card variant="elevated" className="p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex-1">
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Report Details</h1>
+                  <p className="text-sm text-gray-600">
+                    Access Code: <span className="font-mono font-semibold text-[#116aae]">{report.accessCode}</span>
                   </p>
                 </div>
+                <div className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm ${getStatusColor(report.status)}`}>
+                  {report.status}
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-4 md:py-6">
-                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
-                  Run AI compliance check to verify urgency against Philippine Corporate Laws
-                </p>
-                <button
-                  onClick={handleRunAiCheck}
-                  disabled={runningAiCheck}
-                  className="flex items-center gap-2 mx-auto px-4 md:px-6 py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-sm font-medium"
-                >
-                  {runningAiCheck ? (
-                    <>
-                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                      <span>Analyzing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bot className="w-4 h-4 md:w-5 md:h-5" />
-                      <span>🤖 Run AI Compliance Check</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Chat Section */}
-        <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
-
-          <div className="space-y-3 md:space-y-4 mb-4 md:mb-5 max-h-80 md:max-h-96 overflow-y-auto">
-            {report.messages && report.messages.length > 0 ? (
-              report.messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg p-2.5 md:p-3 ${
-                      message.sender === "admin"
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-100 text-gray-900"
-                    }`}
+              {/* Status Update Section */}
+              <div className="mb-6 p-4 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Update Status
+                </label>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value as ReportStatus)}
+                    className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                    disabled={updatingStatus}
                   >
-                    <div className="flex items-center gap-1.5 md:gap-2 mb-0.5 md:mb-1">
-                      <span className={`text-xs font-semibold ${
-                        message.sender === "admin" ? "text-indigo-100" : "text-gray-600"
-                      }`}>
-                        {message.sender === "admin" ? "You (Admin)" : "Reporter"}
-                      </span>
-                      <span className={`text-xs ${
-                        message.sender === "admin" ? "text-indigo-100" : "text-gray-500"
-                      }`}>
-                        {formatDate(message.timestamp)}
-                      </span>
+                    <option value="New">New</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                  </select>
+                  <Button
+                    onClick={handleStatusUpdate}
+                    disabled={selectedStatus === report.status || updatingStatus}
+                    isLoading={updatingStatus}
+                    className="flex items-center gap-2"
+                  >
+                    {!updatingStatus && <Save className="w-4 h-4" />}
+                    Update
+                  </Button>
+                </div>
+              </div>
+
+              {/* Report Info Grid */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1.5">Category</p>
+                  <p className="font-semibold text-gray-900 text-lg">{report.category}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1.5">Urgency</p>
+                  <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-medium ${getUrgencyColor(report.urgency)}`}>
+                    {report.urgency}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1.5">Submitted</p>
+                  <p className="font-semibold text-gray-900">{formatDate(report.createdAt)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1.5">Last Updated</p>
+                  <p className="font-semibold text-gray-900">{formatDate(report.lastUpdated)}</p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 mb-2">Description</p>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{report.description}</p>
+                </div>
+              </div>
+
+              {/* Evidence */}
+              {report.evidenceUrl && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">Evidence</p>
+                  {report.evidenceUrl.endsWith('.pdf') ? (
+                    <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <a
+                        href={report.evidenceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
+                      >
+                        <ImageIcon className="w-5 h-5" />
+                        <span>View PDF Evidence</span>
+                      </a>
                     </div>
-                    <p className={`text-xs md:text-sm whitespace-pre-wrap ${
-                      message.sender === "admin" ? "text-white" : "text-gray-900"
-                    }`}>
-                      {message.text}
+                  ) : (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                      <Image
+                        src={report.evidenceUrl}
+                        alt="Evidence"
+                        fill
+                        className="object-contain bg-gray-50"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+
+            {/* AI Compliance Card */}
+            <Card 
+              variant="elevated" 
+              className={`p-6 ${
+                report.aiAnalysis && !report.aiAnalysis.match
+                  ? "border-2 border-red-300"
+                  : report.aiAnalysis && report.aiAnalysis.match
+                  ? "border-2 border-green-300"
+                  : ""
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <Bot className="w-6 h-6 text-[#116aae]" />
+                <h2 className="text-xl font-bold text-gray-900">AI Compliance Verification</h2>
+              </div>
+
+              {report.aiAnalysis ? (
+                <div className="space-y-6">
+                  <div className="flex items-start gap-3">
+                    {report.aiAnalysis.match ? (
+                      <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1 space-y-3">
+                      {/* Category Assessment */}
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-semibold">Category:</span>{" "}
+                          <span className="text-gray-900">{report.category}</span>
+                          {!report.aiAnalysis.categoryMatch && (
+                            <>
+                              {" → "}
+                              <span className="font-semibold text-red-600">{report.aiAnalysis.categoryAssessment}</span>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                      {/* Urgency Assessment */}
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-semibold">Urgency:</span>{" "}
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
+                            {report.urgency}
+                          </span>
+                          {!report.aiAnalysis.urgencyMatch && (
+                            <>
+                              {" → "}
+                              <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${getAiAssessmentColor(report.aiAnalysis.aiAssessment)}`}>
+                                {report.aiAnalysis.aiAssessment}
+                              </span>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {!report.aiAnalysis.match && (
+                    <div className="space-y-4">
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-sm font-semibold text-red-800 mb-1">
+                          ⚠️ Discrepancy Detected
+                        </p>
+                        <p className="text-sm text-red-700">
+                          {!report.aiAnalysis.categoryMatch && !report.aiAnalysis.urgencyMatch
+                            ? "Category and urgency do not match AI's compliance-based analysis."
+                            : !report.aiAnalysis.categoryMatch
+                            ? "Category does not match AI's compliance-based analysis."
+                            : "Urgency does not match AI's compliance-based analysis."}
+                        </p>
+                      </div>
+
+                      {/* Update Category Section (if mismatch) */}
+                      {!report.aiAnalysis.categoryMatch && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-yellow-900 mb-3">
+                            Update Category to Match AI Assessment
+                          </p>
+                          <div className="flex items-center gap-3">
+                            <select
+                              value={selectedCategory}
+                              onChange={(e) => setSelectedCategory(e.target.value)}
+                              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                              disabled={updatingCategory}
+                            >
+                              <option value="Safety">Safety</option>
+                              <option value="Harassment">Harassment</option>
+                              <option value="Facility Issue">Facility Issue</option>
+                              <option value="Suggestion">Suggestion</option>
+                            </select>
+                            <Button
+                              onClick={handleUpdateCategory}
+                              disabled={selectedCategory === report.category || updatingCategory}
+                              isLoading={updatingCategory}
+                              variant="secondary"
+                              className="flex items-center gap-2"
+                            >
+                              {!updatingCategory && <Save className="w-4 h-4" />}
+                              Update Category
+                            </Button>
+                          </div>
+                          <p className="text-xs text-yellow-800 mt-2">
+                            This will notify the reporter about the change with the law cited.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Update Urgency Section (if mismatch) */}
+                      {!report.aiAnalysis.urgencyMatch && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-yellow-900 mb-3">
+                            Update Urgency to Match AI Assessment
+                          </p>
+                          <div className="flex items-center gap-3">
+                            <select
+                              value={selectedUrgency}
+                              onChange={(e) => setSelectedUrgency(e.target.value)}
+                              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                              disabled={updatingUrgency}
+                            >
+                              <option value="Low">Low</option>
+                              <option value="Medium">Medium</option>
+                              <option value="High">High</option>
+                            </select>
+                            <Button
+                              onClick={handleUpdateUrgency}
+                              disabled={selectedUrgency === report.urgency || updatingUrgency}
+                              isLoading={updatingUrgency}
+                              variant="secondary"
+                              className="flex items-center gap-2"
+                            >
+                              {!updatingUrgency && <Save className="w-4 h-4" />}
+                              Update Urgency
+                            </Button>
+                          </div>
+                          <p className="text-xs text-yellow-800 mt-2">
+                            This will notify the reporter about the change with the law cited.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="bg-[#e6f4f8]/80 border border-[#0da2cb]/30 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-[#116aae] mb-2">
+                      Law Cited: <span className="font-bold text-[#224092]">{report.aiAnalysis.lawCited}</span>
+                    </p>
+                    <p className="text-sm text-[#224092] leading-relaxed">
+                      {report.aiAnalysis.reason}
                     </p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-8">No messages yet.</p>
-            )}
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-sm text-gray-600 mb-4">
+                    Run AI compliance check to verify urgency against Philippine Corporate Laws
+                  </p>
+                  <Button
+                    onClick={handleRunAiCheck}
+                    disabled={runningAiCheck}
+                    isLoading={runningAiCheck}
+                    className="flex items-center gap-2 mx-auto"
+                  >
+                    {!runningAiCheck && <Bot className="w-5 h-5" />}
+                    Run AI Compliance Check
+                  </Button>
+                </div>
+              )}
+            </Card>
           </div>
 
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your reply..."
-              className="flex-1 px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
-              disabled={sending}
-            />
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || sending}
-              className="px-4 md:px-5 lg:px-6 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 md:gap-2 text-xs md:text-sm"
-            >
-              {sending ? (
-                <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
-              ) : (
-                <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              )}
-              <span className="hidden sm:inline">Send</span>
-            </button>
-          </form>
+          {/* Right Side - Messages */}
+          <div className="flex flex-col">
+            <Card variant="elevated" className="p-6 flex flex-col h-full">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Messages</h2>
+
+              <div className="flex-1 space-y-4 mb-6 overflow-y-auto pr-2">
+                {report.messages && report.messages.length > 0 ? (
+                  report.messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-lg p-4 ${
+                          message.sender === "admin"
+                            ? "bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white"
+                            : "bg-gray-100 text-gray-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className={`text-xs font-bold ${
+                            message.sender === "admin" ? "text-white/90" : "text-gray-600"
+                          }`}>
+                            {message.sender === "admin" ? "You (Admin)" : "Reporter"}
+                          </span>
+                          <span className={`text-xs ${
+                            message.sender === "admin" ? "text-white/70" : "text-gray-500"
+                          }`}>
+                            {formatDate(message.timestamp)}
+                          </span>
+                        </div>
+                        <p className={`text-sm whitespace-pre-wrap leading-relaxed ${
+                          message.sender === "admin" ? "text-white" : "text-gray-900"
+                        }`}>
+                          {message.text}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-500">No messages yet.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Message Input */}
+              <form onSubmit={handleSendMessage} className="flex gap-3 mt-auto">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your reply..."
+                  className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
+                  disabled={sending}
+                />
+                <Button
+                  type="submit"
+                  disabled={!newMessage.trim() || sending}
+                  isLoading={sending}
+                  className="flex items-center gap-2"
+                >
+                  {!sending && <Send className="w-4 h-4" />}
+                  Send
+                </Button>
+              </form>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
