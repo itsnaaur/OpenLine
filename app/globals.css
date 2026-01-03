@@ -3,6 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* OpenLine Brand Colors */
+  --openline-primary: #116aae;
+  --openline-accent: #0dc7e4;
+  --openline-medium: #0d87bc;
+  --openline-dark: #224092;
+  --openline-bright: #0da2cb;
 }
 
 @theme inline {
@@ -10,6 +17,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* OpenLine Brand Colors */
+  --color-openline-primary: var(--openline-primary);
+  --color-openline-accent: var(--openline-accent);
+  --color-openline-medium: var(--openline-medium);
+  --color-openline-dark: var(--openline-dark);
+  --color-openline-bright: var(--openline-bright);
 }
 
 * {

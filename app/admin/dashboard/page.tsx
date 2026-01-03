@@ -6,9 +6,10 @@ import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Report, ReportStatus, UrgencyLevel } from "@/types";
-import { LogOut, Eye, Filter, X, Home } from "lucide-react";
+import { LogOut, Eye, Filter, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Header from "../../components/Header";
 
 export default function AdminDashboardPage() {
   const { user, signOut } = useAuth();
@@ -81,7 +82,7 @@ export default function AdminDashboardPage() {
       case "Medium":
         return "bg-yellow-100 text-yellow-800";
       case "Low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#e6f4f8] text-[#116aae]";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -105,26 +106,10 @@ export default function AdminDashboardPage() {
   const hasActiveFilters = statusFilter !== "All" || urgencyFilter !== "All";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
+      <Header showBackButton={true} backHref="/" backLabel="Back to Home" />
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-5 lg:px-6 py-2.5 md:py-3 lg:py-4">
-          <div className="flex items-center justify-between mb-1.5 md:mb-2">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-xs md:text-sm transition-colors"
-            >
-              <Home className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span>Back to Home</span>
-            </Link>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 lg:px-4 py-1 md:py-1.5 md:py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-xs md:text-sm"
-            >
-              <LogOut className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -132,6 +117,13 @@ export default function AdminDashboardPage() {
                 Welcome, <span className="break-all">{user?.email}</span>
               </p>
             </div>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 lg:px-4 py-1 md:py-1.5 md:py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-xs md:text-sm"
+            >
+              <LogOut className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
         </div>
       </div>
@@ -150,7 +142,7 @@ export default function AdminDashboardPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as ReportStatus | "All")}
-                className="flex-1 sm:flex-none px-2.5 md:px-3 py-1.5 md:py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-xs md:text-sm"
+                className="flex-1 sm:flex-none px-2.5 md:px-3 py-1.5 md:py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-xs md:text-sm"
               >
                 <option value="All">All</option>
                 <option value="New">New</option>
@@ -164,7 +156,7 @@ export default function AdminDashboardPage() {
               <select
                 value={urgencyFilter}
                 onChange={(e) => setUrgencyFilter(e.target.value as UrgencyLevel | "All")}
-                className="flex-1 sm:flex-none px-2.5 md:px-3 py-1.5 md:py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-xs md:text-sm"
+                className="flex-1 sm:flex-none px-2.5 md:px-3 py-1.5 md:py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-xs md:text-sm"
               >
                 <option value="All">All</option>
                 <option value="High">High</option>
@@ -254,7 +246,7 @@ export default function AdminDashboardPage() {
                           <td className="px-2 sm:px-3 md:px-4 lg:px-6 py-2 md:py-2.5 whitespace-nowrap">
                             <button
                               onClick={() => router.push(`/admin/reports/${report.id}`)}
-                              className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs md:text-sm"
+                              className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white rounded-lg hover:from-[#224092] hover:to-[#0d87bc] transition-colors text-xs md:text-sm"
                             >
                               <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />
                               <span className="hidden sm:inline">View</span>

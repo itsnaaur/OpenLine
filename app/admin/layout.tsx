@@ -29,9 +29,9 @@ export default function AdminLayout({
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin text-[#116aae] mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>

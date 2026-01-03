@@ -8,6 +8,7 @@ import { Report, Message } from "@/types";
 import { AlertCircle, Send, Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import Header from "../../components/Header";
 
 export default function ReportDetailPage() {
   const params = useParams();
@@ -127,7 +128,7 @@ export default function ReportDetailPage() {
       case "Medium":
         return "bg-yellow-100 text-yellow-800";
       case "Low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#e6f4f8] text-[#116aae]";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -145,9 +146,9 @@ export default function ReportDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin text-[#116aae] mx-auto mb-4" />
           <p className="text-gray-600">Loading report...</p>
         </div>
       </div>
@@ -156,24 +157,27 @@ export default function ReportDetailPage() {
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || "The report you're looking for doesn't exist."}</p>
-          <div className="space-y-3">
-            <button
-              onClick={() => router.push("/track")}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Try Another Code
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Go Home
-            </button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Not Found</h1>
+            <p className="text-gray-600 mb-6">{error || "The report you're looking for doesn't exist."}</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push("/track")}
+                className="w-full bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white py-2 px-4 rounded-lg hover:from-[#224092] hover:to-[#0d87bc] transition-colors"
+              >
+                Try Another Code
+              </button>
+              <button
+                onClick={() => router.push("/")}
+                className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Go Home
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -181,19 +185,14 @@ export default function ReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 md:py-6 lg:py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-4 md:mb-5 lg:mb-6">
-          <button
-            onClick={() => router.push("/track")}
-            className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 mb-3 md:mb-4 text-xs md:text-sm"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
-            Back to Track
-          </button>
-          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
-            <div className="flex items-start justify-between mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
+      <Header showBackButton={true} backHref="/track" backLabel="Back to Track" />
+      <div className="flex-1 py-4 md:py-6 lg:py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-4 md:mb-5 lg:mb-6">
+            <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+              <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Details</h1>
                 <p className="text-sm text-gray-500">Access Code: <span className="font-mono font-semibold">{report.accessCode}</span></p>
@@ -201,9 +200,9 @@ export default function ReportDetailPage() {
               <div className={`px-4 py-2 rounded-lg border-2 font-semibold ${getStatusColor(report.status)}`}>
                 {report.status}
               </div>
-            </div>
+              </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Category</p>
                 <p className="font-medium text-gray-900">{report.category}</p>
@@ -222,23 +221,23 @@ export default function ReportDetailPage() {
                 <p className="text-sm text-gray-500 mb-1">Last Updated</p>
                 <p className="font-medium text-gray-900">{formatDate(report.lastUpdated)}</p>
               </div>
-            </div>
+              </div>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">Description</p>
-              <p className="text-gray-900 whitespace-pre-wrap">{report.description}</p>
-            </div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">Description</p>
+                <p className="text-gray-900 whitespace-pre-wrap">{report.description}</p>
+              </div>
 
-            {report.evidenceUrl && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-500 mb-2">Evidence</p>
+              {report.evidenceUrl && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-2">Evidence</p>
                 {report.evidenceUrl.endsWith('.pdf') ? (
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <a
                       href={report.evidenceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"
+                      className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
                     >
                       <ImageIcon className="w-5 h-5" />
                       <span>View PDF Evidence</span>
@@ -255,16 +254,16 @@ export default function ReportDetailPage() {
                     />
                   </div>
                 )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Chat Section */}
-        <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
-          
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+          {/* Chat Section */}
+          <div className="bg-white md:bg-white/95 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-5 lg:p-6">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Messages</h2>
+            
+            <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
             {report.messages && report.messages.length > 0 ? (
               report.messages.map((message, index) => (
                 <div
@@ -274,7 +273,7 @@ export default function ReportDetailPage() {
                   <div
                     className={`max-w-[80%] rounded-lg p-4 ${
                       message.sender === "admin"
-                        ? "bg-indigo-50 text-gray-900"
+                        ? "bg-[#e6f4f8] text-gray-900"
                         : "bg-gray-100 text-gray-900"
                     }`}
                   >
@@ -293,22 +292,22 @@ export default function ReportDetailPage() {
             ) : (
               <p className="text-gray-500 text-center py-8">No messages yet.</p>
             )}
-          </div>
+            </div>
 
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="flex gap-2">
+            {/* Message Input */}
+            <form onSubmit={handleSendMessage} className="flex gap-2">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none"
               disabled={sending}
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-gradient-to-r from-[#116aae] to-[#0da2cb] text-white rounded-lg hover:from-[#224092] hover:to-[#0d87bc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {sending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -317,7 +316,8 @@ export default function ReportDetailPage() {
               )}
               Send
             </button>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
