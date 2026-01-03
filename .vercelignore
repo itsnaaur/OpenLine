@@ -1,0 +1,28 @@
+# Ignore Firebase Functions directory (deployed separately)
+functions/
+functions/**/*
+
+# Ignore Firebase config files (not needed for Next.js build)
+firebase.json
+.firebaserc
+firestore.rules
+firestore.rules.backup
+storage.rules
+firestore.indexes.json
+
+# Ignore service account keys
+serviceAccountKey.json
+*-serviceAccountKey.json
+firebase-adminsdk-*.json
+
+# Ignore scripts (not needed for build)
+scripts/
+
+# Ignore documentation (not needed for build)
+*.md
+!README.md
+
+# Ignore test files
+**/*.test.*
+**/*.spec.*
+

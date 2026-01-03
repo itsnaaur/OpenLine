@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'", // 'unsafe-inline' needed for Tailwind
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com",
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net",
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
