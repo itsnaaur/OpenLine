@@ -11,16 +11,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Generate a 6-character alphanumeric Access Code
- * Format: 3 chars - 2 chars - 1 char (e.g., "8X2-99B")
+ * Generate a secure 12-character alphanumeric Access Code
+ * Format: 4 chars - 4 chars - 4 chars (e.g., "8X2K-99BM-7ZQN")
+ * Increased complexity for better security and anonymity
  */
 export function generateAccessCode(): string {
   // Use nanoid with custom alphabet (uppercase letters and numbers, excluding confusing chars)
   const alphabet = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // Removed I, O to avoid confusion
-  const nanoid = customAlphabet(alphabet, 6);
+  const nanoid = customAlphabet(alphabet, 12);
   const code = nanoid();
   
-  // Format as XXX-XX-X
-  return `${code.slice(0, 3)}-${code.slice(3, 5)}-${code.slice(5, 6)}`;
+  // Format as XXXX-XXXX-XXXX (12 characters total, more secure)
+  return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}`;
 }
 

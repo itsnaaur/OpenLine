@@ -14,7 +14,7 @@ service cloud.firestore {
       // Validate that required fields are present and properly formatted
       allow create: if request.resource.data.keys().hasAll(['accessCode', 'category', 'urgency', 'description', 'status', 'createdAt', 'lastUpdated', 'messages'])
                    && request.resource.data.accessCode is string
-                   && request.resource.data.accessCode.size() >= 6
+                   && request.resource.data.accessCode.size() >= 14
                    && request.resource.data.category is string
                    && request.resource.data.urgency is string
                    && request.resource.data.description is string

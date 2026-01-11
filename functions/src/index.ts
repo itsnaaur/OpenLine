@@ -81,7 +81,7 @@ app.get("/report/:accessCode", rateLimit, async (req: Request, res: Response) =>
     if (!accessCode || !isValidAccessCode(accessCode)) {
       res.status(400).json({
         error: "Invalid access code format",
-        message: "Access code must be in format XXX-XX-X",
+        message: "Access code must be in format XXXX-XXXX-XXXX",
       });
       return;
     }
