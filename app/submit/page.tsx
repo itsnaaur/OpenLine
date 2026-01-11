@@ -254,7 +254,7 @@ export default function SubmitReportPage() {
                 onClick={() => {
                   setAccessCode(null);
                   setFormData({ category: "", urgency: "", description: "" });
-                  setFile(null);
+                  setFiles([]);
                 }}
                 className="w-full"
               >
