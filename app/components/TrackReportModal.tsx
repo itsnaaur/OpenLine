@@ -27,8 +27,8 @@ export default function TrackReportModal({ isOpen, onClose }: TrackReportModalPr
       return;
     }
 
-    if (!/^[A-Z0-9]{3}-[A-Z0-9]{2}-[A-Z0-9]{1}$/.test(cleanedCode)) {
-      toast.error("Invalid access code format. Format should be: XXX-XX-X");
+    if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cleanedCode)) {
+      toast.error("Invalid access code format. Format should be: XXXX-XXXX-XXXX");
       return;
     }
 
@@ -59,7 +59,7 @@ export default function TrackReportModal({ isOpen, onClose }: TrackReportModalPr
               type="text"
               value={accessCode}
               onChange={(e) => setAccessCode(e.target.value)}
-              placeholder="XXX-XX-X"
+                  placeholder="XXXX-XXXX-XXXX"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-center text-xl font-mono tracking-wider uppercase bg-gray-50 hover:border-gray-300 transition-all"
               maxLength={8}
             />
