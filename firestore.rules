@@ -34,12 +34,30 @@ service cloud.firestore {
       // but the frontend is designed to only query by accessCode
       allow read: if isAdmin() || true;
       
-      // Only authenticated admins can update reports
-      // Validate that updates don't modify critical fields inappropriately
-      allow update: if isAdmin()
-                   && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['accessCode', 'createdAt']))
-                   && request.resource.data.lastUpdated is number
-                   && request.resource.data.lastUpdated > resource.data.lastUpdated;
+      // Allow updates in two scenarios:
+      // 1. Admins can update any field (except accessCode and createdAt)
+      // 2. Anonymous users can ONLY update messages array and lastUpdated
+      allow update: if (
+        // Admin updates (can update status, category, urgency, messages, etc.)
+        (isAdmin()
+         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['accessCode', 'createdAt']))
+         && request.resource.data.lastUpdated is number
+         && request.resource.data.lastUpdated > resource.data.lastUpdated)
+        ||
+        // Anonymous reporter updates (can ONLY update messages and lastUpdated)
+        (request.auth == null
+         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['messages', 'lastUpdated'])
+         && request.resource.data.accessCode == resource.data.accessCode
+         && request.resource.data.category == resource.data.category
+         && request.resource.data.urgency == resource.data.urgency
+         && request.resource.data.description == resource.data.description
+         && request.resource.data.status == resource.data.status
+         && request.resource.data.createdAt == resource.data.createdAt
+         && request.resource.data.messages is list
+         && request.resource.data.messages.size() >= resource.data.messages.size()
+         && request.resource.data.lastUpdated is number
+         && request.resource.data.lastUpdated > resource.data.lastUpdated)
+      );
       
       // Only authenticated admins can delete reports
       allow delete: if isAdmin();

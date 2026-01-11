@@ -431,28 +431,60 @@ export default function AdminReportDetailPage() {
               {report.evidenceUrl && (
                 <div>
                   <p className="text-sm text-gray-600 mb-3">Evidence</p>
-                  {report.evidenceUrl.endsWith('.pdf') ? (
-                    <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <a
-                        href={report.evidenceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
-                      >
-                        <ImageIcon className="w-5 h-5" />
-                        <span>View PDF Evidence</span>
-                      </a>
+                  {Array.isArray(report.evidenceUrl) ? (
+                    <div className="space-y-4">
+                      {report.evidenceUrl.map((url, idx) => (
+                        <div key={idx}>
+                          {url.endsWith('.pdf') ? (
+                            <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
+                              >
+                                <ImageIcon className="w-5 h-5" />
+                                <span>View PDF Evidence {report.evidenceUrl.length > 1 ? `(${idx + 1})` : ''}</span>
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                              <Image
+                                src={url}
+                                alt={`Evidence ${idx + 1}`}
+                                fill
+                                className="object-contain bg-gray-50"
+                                unoptimized
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   ) : (
-                    <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
-                      <Image
-                        src={report.evidenceUrl}
-                        alt="Evidence"
-                        fill
-                        className="object-contain bg-gray-50"
-                        unoptimized
-                      />
-                    </div>
+                    report.evidenceUrl.endsWith('.pdf') ? (
+                      <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <a
+                          href={report.evidenceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
+                        >
+                          <ImageIcon className="w-5 h-5" />
+                          <span>View PDF Evidence</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                        <Image
+                          src={report.evidenceUrl}
+                          alt="Evidence"
+                          fill
+                          className="object-contain bg-gray-50"
+                          unoptimized
+                        />
+                      </div>
+                    )
                   )}
                 </div>
               )}

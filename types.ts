@@ -18,7 +18,7 @@ export interface Report {
   urgency: UrgencyLevel;
   description: string;
   status: ReportStatus;
-  evidenceUrl?: string; // Firebase Storage URL
+  evidenceUrl?: string | string[]; // Firebase Storage URL(s) - can be single URL or array
   createdAt: number; // Unix timestamp
   lastUpdated: number; // Unix timestamp
   messages: Message[]; // Chat history array

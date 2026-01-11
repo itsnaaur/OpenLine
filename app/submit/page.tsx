@@ -21,7 +21,7 @@ export default function SubmitReportPage() {
     urgency: "" as UrgencyLevel | "",
     description: "",
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accessCode, setAccessCode] = useState<string | null>(null);
 
@@ -33,22 +33,33 @@ export default function SubmitReportPage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFiles = Array.from(e.target.files);
       const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-      if (!validTypes.includes(selectedFile.type)) {
-        toast.error("Please upload an image (JPEG, PNG) or PDF file");
-        return;
+      
+      // Validate all files
+      for (const file of selectedFiles) {
+        if (!validTypes.includes(file.type)) {
+          toast.error(`${file.name} is not a valid file type. Please upload JPEG, PNG, or PDF files.`);
+          return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} is too large. File size must be less than 5MB.`);
+          return;
+        }
       }
       
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
-        return;
-      }
+      // Add new files to existing ones (allow multiple selections)
+      setFiles(prev => [...prev, ...selectedFiles]);
       
-      setFile(selectedFile);
+      // Reset the input so the same file can be selected again if needed
+      e.target.value = '';
     }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,15 +73,28 @@ export default function SubmitReportPage() {
     setIsSubmitting(true);
     
     try {
-      let evidenceUrl: string | undefined;
+      let evidenceUrl: string | string[] | undefined;
 
-      if (file) {
-        toast.loading("Uploading evidence...", { id: "upload" });
-        const fileName = `evidence/${Date.now()}_${file.name}`;
-        const storageRef = ref(storage, fileName);
-        await uploadBytes(storageRef, file);
-        evidenceUrl = await getDownloadURL(storageRef);
-        toast.success("Evidence uploaded!", { id: "upload" });
+      if (files.length > 0) {
+        toast.loading(`Uploading ${files.length} file(s)...`, { id: "upload" });
+        
+        try {
+          const uploadPromises = files.map(async (file, index) => {
+            const fileName = `evidence/${Date.now()}_${index}_${file.name}`;
+            const storageRef = ref(storage, fileName);
+            await uploadBytes(storageRef, file);
+            return await getDownloadURL(storageRef);
+          });
+          
+          const uploadedUrls = await Promise.all(uploadPromises);
+          evidenceUrl = uploadedUrls.length === 1 ? uploadedUrls[0] : uploadedUrls;
+          toast.success(`${files.length} file(s) uploaded successfully!`, { id: "upload" });
+        } catch (uploadError) {
+          console.error("Error uploading files:", uploadError);
+          toast.error("Failed to upload files. Please try again.", { id: "upload" });
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       const code = generateAccessCode();
@@ -99,7 +123,7 @@ export default function SubmitReportPage() {
 
       setAccessCode(code);
       setFormData({ category: "", urgency: "", description: "" });
-      setFile(null);
+      setFiles([]);
     } catch (error) {
       console.error("Error submitting report:", error);
       toast.error("Failed to submit report. Please try again.");
@@ -397,16 +421,31 @@ export default function SubmitReportPage() {
                               type="file"
                               accept="image/jpeg,image/png,image/jpg,application/pdf"
                               onChange={handleFileChange}
+                              multiple
                               className="sr-only"
                             />
                           </label>
                           <p className="pl-1">or drag and drop</p>
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
-                        {file && (
-                          <p className="text-sm text-[#116aae] font-semibold mt-2">
-                            Selected: {file.name}
-                          </p>
+                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB each</p>
+                        {files.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {files.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 px-3">
+                                <p className="text-sm text-[#116aae] font-medium truncate flex-1">
+                                  {file.name}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => removeFile(index)}
+                                  className="ml-2 text-red-500 hover:text-red-700 text-sm font-semibold"
+                                  aria-label={`Remove ${file.name}`}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>

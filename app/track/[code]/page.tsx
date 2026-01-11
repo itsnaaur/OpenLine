@@ -87,25 +87,43 @@ export default function ReportDetailPage() {
     if (!newMessage.trim() || !report?.id) return;
 
     setSending(true);
+    const messageText = newMessage.trim();
+    setNewMessage(""); // Clear input immediately for better UX
+    
     try {
       const reportRef = doc(db, "reports", report.id);
       const newMessageObj: Message = {
         sender: "reporter",
-        text: newMessage.trim(),
+        text: messageText,
         timestamp: Date.now(),
       };
 
+      // Get the latest report data to avoid stale state issues
+      // Use the current report state, but handle potential conflicts
+      const currentMessages = report.messages || [];
+      const updatedMessages = [...currentMessages, newMessageObj];
+      const newLastUpdated = Date.now();
+
       // Update the report with the new message
       await updateDoc(reportRef, {
-        messages: [...(report.messages || []), newMessageObj],
-        lastUpdated: Date.now(),
+        messages: updatedMessages,
+        lastUpdated: newLastUpdated,
       });
 
-      setNewMessage("");
       toast.success("Message sent!");
     } catch (err: any) {
       console.error("Error sending message:", err);
-      toast.error("Failed to send message. Please try again.");
+      // Restore the message text if send failed
+      setNewMessage(messageText);
+      
+      // Show more specific error message
+      if (err.code === 'permission-denied') {
+        toast.error("Permission denied. Please refresh the page and try again.");
+      } else if (err.code === 'failed-precondition') {
+        toast.error("The report was updated. Please refresh and try again.");
+      } else {
+        toast.error(`Failed to send message: ${err.message || 'Unknown error'}`);
+      }
     } finally {
       setSending(false);
     }
@@ -275,29 +293,61 @@ export default function ReportDetailPage() {
               {report.evidenceUrl && (
                 <div className="mt-4">
                   <p className="text-sm text-gray-500 mb-2">Evidence</p>
-                {report.evidenceUrl.endsWith('.pdf') ? (
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <a
-                      href={report.evidenceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
-                    >
-                      <ImageIcon className="w-5 h-5" />
-                      <span>View PDF Evidence</span>
-                    </a>
-                  </div>
-                ) : (
-                  <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                    <Image
-                      src={report.evidenceUrl}
-                      alt="Evidence"
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                )}
+                  {Array.isArray(report.evidenceUrl) ? (
+                    <div className="space-y-4">
+                      {report.evidenceUrl.map((url, idx) => (
+                        <div key={idx}>
+                          {url.endsWith('.pdf') ? (
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
+                              >
+                                <ImageIcon className="w-5 h-5" />
+                                <span>View PDF Evidence {report.evidenceUrl.length > 1 ? `(${idx + 1})` : ''}</span>
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                              <Image
+                                src={url}
+                                alt={`Evidence ${idx + 1}`}
+                                fill
+                                className="object-contain"
+                                unoptimized
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    report.evidenceUrl.endsWith('.pdf') ? (
+                      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <a
+                          href={report.evidenceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
+                        >
+                          <ImageIcon className="w-5 h-5" />
+                          <span>View PDF Evidence</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                        <Image
+                          src={report.evidenceUrl}
+                          alt="Evidence"
+                          fill
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                    )
+                  )}
                 </div>
               )}
             </Card>
