@@ -13,6 +13,7 @@ import Footer from "../../../components/Footer";
 import Card from "../../../components/Card";
 import Button from "../../../components/Button";
 import Link from "next/link";
+import ImageZoomModal from "../../../components/ImageZoomModal";
 
 export default function AdminReportDetailPage() {
   const params = useParams();
@@ -30,6 +31,9 @@ export default function AdminReportDetailPage() {
   const [selectedUrgency, setSelectedUrgency] = useState<string>("");
   const [updatingCategory, setUpdatingCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [imageZoomOpen, setImageZoomOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [evidenceImages, setEvidenceImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!reportId) return;
@@ -66,6 +70,17 @@ export default function AdminReportDetailPage() {
             setReport(updatedData);
             setSelectedStatus(updatedData.status);
             setSelectedCategory(updatedData.category);
+            
+            // Update evidence images
+            if (updatedData.evidenceUrl) {
+              const images: string[] = [];
+              if (Array.isArray(updatedData.evidenceUrl)) {
+                images.push(...updatedData.evidenceUrl.filter(url => !url.endsWith('.pdf')));
+              } else if (typeof updatedData.evidenceUrl === 'string' && !updatedData.evidenceUrl.endsWith('.pdf')) {
+                images.push(updatedData.evidenceUrl);
+              }
+              setEvidenceImages(images);
+            }
             
             // If AI analysis exists and there's a mismatch, set selectedUrgency to AI's recommendation
             // Otherwise, use the current urgency
@@ -448,7 +463,22 @@ export default function AdminReportDetailPage() {
                               </a>
                             </div>
                           ) : (
-                            <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                            <div 
+                              className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-[#116aae] transition-colors"
+                              onClick={() => {
+                                // Find the image index (excluding PDFs)
+                                const imageUrls = report.evidenceUrl && Array.isArray(report.evidenceUrl) 
+                                  ? report.evidenceUrl.filter(u => !u.endsWith('.pdf'))
+                                  : (typeof report.evidenceUrl === 'string' && !report.evidenceUrl.endsWith('.pdf') 
+                                    ? [report.evidenceUrl] 
+                                    : []);
+                                const imageIndex = imageUrls.indexOf(url);
+                                if (imageIndex !== -1) {
+                                  setSelectedImageIndex(imageIndex);
+                                  setImageZoomOpen(true);
+                                }
+                              }}
+                            >
                               <Image
                                 src={url}
                                 alt={`Evidence ${idx + 1}`}
@@ -743,6 +773,16 @@ export default function AdminReportDetailPage() {
         </div>
       </div>
       <Footer />
+      
+      {/* Image Zoom Modal */}
+      {evidenceImages.length > 0 && (
+        <ImageZoomModal
+          isOpen={imageZoomOpen}
+          onClose={() => setImageZoomOpen(false)}
+          images={evidenceImages}
+          initialIndex={selectedImageIndex}
+        />
+      )}
     </div>
   );
 }
