@@ -14,6 +14,7 @@ import Card from "../../../components/Card";
 import Button from "../../../components/Button";
 import Link from "next/link";
 import ImageZoomModal from "../../../components/ImageZoomModal";
+import { formatLawDisplayName, getLawReference } from "@/lib/lawReferences";
 
 export default function AdminReportDetailPage() {
   const params = useParams();
@@ -240,9 +241,10 @@ export default function AdminReportDetailPage() {
       const now = Date.now();
       
       // Create a message explaining the category change with law cited
+      const lawDisplayName = formatLawDisplayName(report.aiAnalysis.lawCited);
       const categoryChangeMessage: Message = {
         sender: "admin",
-        text: `📋 Category Updated\n\nYour report's category has been updated from "${report.category}" to "${selectedCategory}" based on AI compliance verification.\n\n📋 Law Cited: ${report.aiAnalysis.lawCited}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures proper classification for compliance with Philippine Corporate Laws.`,
+        text: `📋 Category Updated\n\nYour report's category has been updated from "${report.category}" to "${selectedCategory}" based on AI compliance verification.\n\n📋 Law Cited: ${lawDisplayName}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures proper classification for compliance with Philippine Corporate Laws.`,
         timestamp: now,
       };
 
@@ -277,9 +279,10 @@ export default function AdminReportDetailPage() {
       const now = Date.now();
       
       // Create a message explaining the urgency change with law cited
+      const lawDisplayName = formatLawDisplayName(report.aiAnalysis.lawCited);
       const urgencyChangeMessage: Message = {
         sender: "admin",
-        text: `⚠️ Urgency Level Updated\n\nYour report's urgency has been updated from "${report.urgency}" to "${selectedUrgency}" based on AI compliance verification.\n\n📋 Law Cited: ${report.aiAnalysis.lawCited}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures compliance with Philippine Corporate Laws.`,
+        text: `⚠️ Urgency Level Updated\n\nYour report's urgency has been updated from "${report.urgency}" to "${selectedUrgency}" based on AI compliance verification.\n\n📋 Law Cited: ${lawDisplayName}\n\nReason: ${report.aiAnalysis.reason}\n\nThis change ensures compliance with Philippine Corporate Laws.`,
         timestamp: now,
       };
 
@@ -669,13 +672,30 @@ export default function AdminReportDetailPage() {
                     </div>
                   )}
 
-                  <div className="bg-[#e6f4f8]/80 border border-[#0da2cb]/30 rounded-lg p-4 overflow-x-auto">
-                    <p className="text-sm font-semibold text-[#116aae] mb-2 break-words">
-                      Law Cited: <span className="font-bold text-[#224092]">{report.aiAnalysis.lawCited}</span>
-                    </p>
-                    <p className="text-sm text-[#224092] leading-relaxed break-words">
-                      {report.aiAnalysis.reason}
-                    </p>
+                  <div className="bg-[#e6f4f8]/80 border border-[#0da2cb]/30 rounded-lg p-4 overflow-x-auto space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-[#116aae] mb-1 break-words">
+                        Law Cited:
+                      </p>
+                      <p className="text-sm font-bold text-[#224092] break-words">
+                        {formatLawDisplayName(report.aiAnalysis.lawCited)}
+                      </p>
+                    </div>
+                    {getLawReference(report.aiAnalysis.lawCited) && (
+                      <div>
+                        <p className="text-xs text-gray-600 italic break-words">
+                          {getLawReference(report.aiAnalysis.lawCited)?.readMoreInfo}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-[#116aae] mb-1 break-words">
+                        Explanation:
+                      </p>
+                      <p className="text-sm text-[#224092] leading-relaxed break-words">
+                        {report.aiAnalysis.reason}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (
