@@ -9,7 +9,7 @@ interface HeartbeatMonitorProps {
 
 export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }: HeartbeatMonitorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const [pulseIntensity, setPulseIntensity] = useState(1);
 
   // Pulse intensity based on message count (more messages = stronger pulse)
