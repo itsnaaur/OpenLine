@@ -120,8 +120,23 @@ export default function SubmitReportPage() {
         toast.loading(`Uploading ${files.length} file(s)...`, { id: "upload" });
         
         try {
+          const baseTimestamp = Date.now();
           const uploadPromises = files.map(async (file, index) => {
-            const fileName = `evidence/${Date.now()}_${index}_${file.name}`;
+            // Extract file extension (must preserve for Storage rules)
+            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+            const validExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+            if (!validExtensions.includes(fileExtension)) {
+              throw new Error(`Invalid file type: ${fileExtension}. Only JPEG, PNG, or PDF files are allowed.`);
+            }
+            
+            // Sanitize base filename (remove extension first)
+            const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
+            
+            // Use timestamp + index + random to ensure uniqueness even if uploaded simultaneously
+            const uniqueId = `${baseTimestamp}_${index}_${Math.random().toString(36).substring(2, 9)}`;
+            // Ensure filename ends with valid extension (required by Storage rules)
+            const fileName = `evidence/${uniqueId}_${sanitizedName}.${fileExtension}`;
             const storageRef = ref(storage, fileName);
             await uploadBytes(storageRef, file);
             return await getDownloadURL(storageRef);
@@ -130,9 +145,15 @@ export default function SubmitReportPage() {
           const uploadedUrls = await Promise.all(uploadPromises);
           evidenceUrl = uploadedUrls.length === 1 ? uploadedUrls[0] : uploadedUrls;
           toast.success(`${files.length} file(s) uploaded successfully!`, { id: "upload" });
-        } catch (uploadError) {
+        } catch (uploadError: any) {
           console.error("Error uploading files:", uploadError);
-          toast.error("Failed to upload files. Please try again.", { id: "upload" });
+          const errorMessage = uploadError?.message || uploadError?.code || "Unknown error";
+          console.error("Upload error details:", {
+            code: uploadError?.code,
+            message: uploadError?.message,
+            serverResponse: uploadError?.serverResponse,
+          });
+          toast.error(`Failed to upload files: ${errorMessage}. Please try again.`, { id: "upload", duration: 5000 });
           setIsSubmitting(false);
           return;
         }
