@@ -1,6 +1,13 @@
 // Type definitions for OpenLine
 
-export type ReportCategory = "Safety" | "Harassment" | "Facility Issue" | "Suggestion";
+export type ReportCategory = 
+  | "Workplace Safety & Health" 
+  | "Sexual Harassment & Gender-Based Violence"
+  | "Bullying & Discrimination"
+  | "Data Privacy Violation"
+  | "Financial Misconduct"
+  | "Facility & Equipment Issue"
+  | "General Suggestion/Feedback";
 export type UrgencyLevel = "Low" | "Medium" | "High";
 export type ReportStatus = "New" | "In Progress" | "Resolved";
 

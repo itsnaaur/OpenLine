@@ -578,10 +578,13 @@ export default function AdminReportDetailPage() {
                               className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-sm md:text-base"
                               disabled={updatingCategory}
                             >
-                              <option value="Safety">Safety</option>
-                              <option value="Harassment">Harassment</option>
-                              <option value="Facility Issue">Facility Issue</option>
-                              <option value="Suggestion">Suggestion</option>
+                              <option value="Workplace Safety & Health">Workplace Safety & Health</option>
+                              <option value="Sexual Harassment & Gender-Based Violence">Sexual Harassment & Gender-Based Violence</option>
+                              <option value="Bullying & Discrimination">Bullying & Discrimination</option>
+                              <option value="Data Privacy Violation">Data Privacy Violation</option>
+                              <option value="Financial Misconduct">Financial Misconduct</option>
+                              <option value="Facility & Equipment Issue">Facility & Equipment Issue</option>
+                              <option value="General Suggestion/Feedback">General Suggestion/Feedback</option>
                             </select>
                             <Button
                               onClick={handleUpdateCategory}
