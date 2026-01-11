@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as express from "express";
-import * as cors from "cors";
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -17,7 +17,7 @@ const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute per IP
 /**
  * Simple rate limiting middleware
  */
-function rateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
+function rateLimit(req: Request, res: Response, next: NextFunction) {
   const ip = req.ip || req.connection.remoteAddress || "unknown";
   const now = Date.now();
   
@@ -73,7 +73,7 @@ function isValidAccessCode(code: string): boolean {
  * Get report by access code (secure endpoint)
  * This replaces direct Firestore queries to prevent enumeration attacks
  */
-app.get("/report/:accessCode", rateLimit, async (req, res) => {
+app.get("/report/:accessCode", rateLimit, async (req: Request, res: Response) => {
   try {
     const accessCode = req.params.accessCode?.toUpperCase().trim();
     
@@ -128,7 +128,7 @@ app.get("/report/:accessCode", rateLimit, async (req, res) => {
  * Get signed URL for evidence file (secure endpoint)
  * This prevents direct public access to evidence files
  */
-app.get("/evidence/:reportId", rateLimit, async (req, res) => {
+app.get("/evidence/:reportId", rateLimit, async (req: Request, res: Response) => {
   try {
     const reportId = req.params.reportId;
     
