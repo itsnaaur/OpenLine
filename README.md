@@ -3,6 +3,25 @@ Anonymous Whistleblowing & Feedback Portal
 
 A secure, anonymous reporting system that allows employees/students to report issues without fear of retaliation.
 
+## 🏢 Third-Party Service Model
+
+OpenLine operates as a **third-party reporting service**:
+
+- **OpenLine Staff (Admins)**: Handle all reports and manage the system
+- **Institution Clients**: Do NOT have admin access to the system
+- **Report Delivery**: Reports are sent to institutions for verification (institutions don't access the system directly)
+- **Anonymity Guarantee**: Since OpenLine admins don't work in client organizations, they cannot identify reporters
+
+### Multi-Tenant Architecture
+
+OpenLine supports multiple organizations with complete data isolation:
+- Each organization has separate database collections and storage folders
+- Each organization can have a unique URL (future)
+- Currently active: **Demo organization** for general testing
+- Foundation ready for multi-tenant expansion when needed
+
+📖 **See [MULTI_TENANT_ARCHITECTURE.md](./MULTI_TENANT_ARCHITECTURE.md) for detailed architecture documentation.**
+
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
