@@ -61,10 +61,10 @@ export default function TrackReportModal({ isOpen, onClose }: TrackReportModalPr
               onChange={(e) => setAccessCode(e.target.value)}
                   placeholder="XXXX-XXXX-XXXX"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-center text-xl font-mono tracking-wider uppercase bg-gray-50 hover:border-gray-300 transition-all"
-              maxLength={8}
+              maxLength={14}
             />
             <p className="text-xs text-gray-500 mt-2 text-center">
-              Format: XXX-XX-X (e.g., 8X2-99B)
+              Format: XXXX-XXXX-XXXX (e.g., 8X2K-99BM-7ZQN)
             </p>
           </div>
 
