@@ -12,6 +12,7 @@ import Link from "next/link";
 import Footer from "../../components/Footer";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
+import HeartbeatMonitor from "../../components/HeartbeatMonitor";
 
 export default function ReportDetailPage() {
   const params = useParams();
