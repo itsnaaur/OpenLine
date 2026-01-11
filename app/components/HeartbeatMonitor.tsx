@@ -12,6 +12,16 @@ export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }:
   const animationFrameRef = useRef<number>();
   const [pulseIntensity, setPulseIntensity] = useState(1);
 
+  // Pulse intensity based on message count (more messages = stronger pulse)
+  useEffect(() => {
+    if (messagesCount > 0) {
+      setPulseIntensity(Math.min(1 + messagesCount * 0.1, 2.5));
+      // Reset after animation
+      const timeout = setTimeout(() => setPulseIntensity(1), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [messagesCount]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -32,15 +42,6 @@ export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }:
     const baseSpeed = 0.5; // Base scroll speed
     const lineHeight = 60; // Vertical spacing between lines
     const numLines = Math.ceil(canvas.height / lineHeight) + 2;
-
-    // Pulse intensity based on message count (more messages = stronger pulse)
-    useEffect(() => {
-      if (messagesCount > 0) {
-        setPulseIntensity(Math.min(1 + messagesCount * 0.1, 2.5));
-        // Reset after animation
-        setTimeout(() => setPulseIntensity(1), 1000);
-      }
-    }, [messagesCount]);
 
     const draw = () => {
       if (!ctx) return;
