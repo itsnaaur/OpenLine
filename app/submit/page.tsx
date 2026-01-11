@@ -32,26 +32,40 @@ export default function SubmitReportPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const MAX_FILES = 3;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  const validateAndAddFiles = (newFiles: File[]) => {
+    const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+    
+    // Check total file limit
+    if (files.length + newFiles.length > MAX_FILES) {
+      toast.error(`Maximum ${MAX_FILES} files allowed. Please remove some files first.`);
+      return false;
+    }
+    
+    // Validate all files
+    for (const file of newFiles) {
+      if (!validTypes.includes(file.type)) {
+        toast.error(`${file.name} is not a valid file type. Please upload JPEG, PNG, or PDF files.`);
+        return false;
+      }
+      
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name} is too large. File size must be less than 5MB.`);
+        return false;
+      }
+    }
+    
+    // Add new files to existing ones
+    setFiles(prev => [...prev, ...newFiles]);
+    return true;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files);
-      const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-      
-      // Validate all files
-      for (const file of selectedFiles) {
-        if (!validTypes.includes(file.type)) {
-          toast.error(`${file.name} is not a valid file type. Please upload JPEG, PNG, or PDF files.`);
-          return;
-        }
-        
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name} is too large. File size must be less than 5MB.`);
-          return;
-        }
-      }
-      
-      // Add new files to existing ones (allow multiple selections)
-      setFiles(prev => [...prev, ...selectedFiles]);
+      validateAndAddFiles(selectedFiles);
       
       // Reset the input so the same file can be selected again if needed
       e.target.value = '';
@@ -60,6 +74,33 @@ export default function SubmitReportPage() {
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDropAreaClick = () => {
+    document.getElementById('evidence')?.click();
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('border-[#0da2cb]', 'bg-[#e6f4f8]/50');
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('border-[#0da2cb]', 'bg-[#e6f4f8]/50');
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('border-[#0da2cb]', 'bg-[#e6f4f8]/50');
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      validateAndAddFiles(droppedFiles);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -404,15 +445,22 @@ export default function SubmitReportPage() {
                   {/* File Upload */}
                   <div>
                     <label htmlFor="evidence" className="block text-sm font-semibold text-gray-900 mb-2">
-                      Evidence <span className="text-gray-500 font-normal text-sm">(Optional)</span>
+                      Evidence <span className="text-gray-500 font-normal text-sm">(Optional, max {MAX_FILES} files)</span>
                     </label>
-                    <div className="flex justify-center px-6 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#0da2cb] hover:bg-[#e6f4f8]/30 transition-all cursor-pointer group">
-                      <div className="space-y-2 text-center">
+                    <div 
+                      className="flex justify-center px-6 py-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#0da2cb] hover:bg-[#e6f4f8]/30 transition-all cursor-pointer group"
+                      onClick={handleDropAreaClick}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      <div className="space-y-2 text-center w-full">
                         <Upload className="mx-auto h-10 w-10 text-gray-400 group-hover:text-[#116aae] transition-colors" />
-                        <div className="flex text-sm text-gray-600">
+                        <div className="flex text-sm text-gray-600 justify-center items-center">
                           <label
                             htmlFor="evidence"
                             className="relative cursor-pointer rounded-md font-semibold text-[#116aae] hover:text-[#0da2cb]"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <span>Upload a file</span>
                             <input
@@ -427,17 +475,20 @@ export default function SubmitReportPage() {
                           </label>
                           <p className="pl-1">or drag and drop</p>
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB each</p>
+                        <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB each (Max {MAX_FILES} files)</p>
                         {files.length > 0 && (
                           <div className="mt-3 space-y-2">
                             {files.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 px-3">
+                              <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 px-3" onClick={(e) => e.stopPropagation()}>
                                 <p className="text-sm text-[#116aae] font-medium truncate flex-1">
                                   {file.name}
                                 </p>
                                 <button
                                   type="button"
-                                  onClick={() => removeFile(index)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeFile(index);
+                                  }}
                                   className="ml-2 text-red-500 hover:text-red-700 text-sm font-semibold"
                                   aria-label={`Remove ${file.name}`}
                                 >
@@ -445,6 +496,9 @@ export default function SubmitReportPage() {
                                 </button>
                               </div>
                             ))}
+                            {files.length >= MAX_FILES && (
+                              <p className="text-xs text-amber-600 font-medium">Maximum {MAX_FILES} files reached</p>
+                            )}
                           </div>
                         )}
                       </div>
