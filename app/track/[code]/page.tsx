@@ -224,8 +224,13 @@ export default function ReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col">
-      <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#e6f4f8] to-[#d9eaf5] flex flex-col relative overflow-hidden">
+      {/* Heartbeat Monitor Background Animation */}
+      <HeartbeatMonitor 
+        messagesCount={report.messages?.length || 0} 
+        isActive={report.status !== "Resolved"}
+      />
+      <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-40 relative">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
@@ -250,7 +255,7 @@ export default function ReportDetailPage() {
           </div>
         </div>
       </header>
-      <div className="flex-1 py-4 md:py-6 lg:py-8 px-4">
+      <div className="flex-1 py-4 md:py-6 lg:py-8 px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Report Details */}
           <div className="mb-4 md:mb-5 lg:mb-6">
