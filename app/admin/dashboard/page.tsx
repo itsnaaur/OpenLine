@@ -336,8 +336,10 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-gray-50 transition-colors">
+                  {filteredReports.map((report) => {
+                    const isUnverified = !report.aiAnalysis;
+                    return (
+                    <tr key={report.id} className={`hover:bg-gray-50 transition-colors ${isUnverified ? 'bg-yellow-50/50 border-l-4 border-yellow-400' : ''}`}>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className="font-mono font-semibold text-gray-900">{report.accessCode}</span>
                       </td>
@@ -374,8 +376,10 @@ export default function AdminDashboardPage() {
         ) : (
           /* Card View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredReports.map((report) => (
-              <Card key={report.id} variant="elevated" hover className="p-5 transition-all">
+            {filteredReports.map((report) => {
+              const isUnverified = !report.aiAnalysis;
+              return (
+              <Card key={report.id} variant="elevated" hover className={`p-5 transition-all ${isUnverified ? 'border-2 border-yellow-400 bg-yellow-50/30' : ''}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -410,7 +414,8 @@ export default function AdminDashboardPage() {
                   </Link>
                 </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -60,6 +60,17 @@ export default function AdminReportDetailPage() {
         setSelectedStatus(reportData.status);
         setSelectedUrgency(reportData.urgency);
         setSelectedCategory(reportData.category);
+        
+        // Initialize evidence images on first load
+        if (reportData.evidenceUrl) {
+          const images: string[] = [];
+          if (Array.isArray(reportData.evidenceUrl)) {
+            images.push(...reportData.evidenceUrl.filter(url => !url.endsWith('.pdf')));
+          } else if (typeof reportData.evidenceUrl === 'string' && !reportData.evidenceUrl.endsWith('.pdf')) {
+            images.push(reportData.evidenceUrl);
+          }
+          setEvidenceImages(images);
+        }
 
         // Set up real-time listener
         const unsubscribe = onSnapshot(reportRef, (snapshot) => {
@@ -495,7 +506,8 @@ export default function AdminReportDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    typeof report.evidenceUrl === 'string' && report.evidenceUrl.endsWith('.pdf') ? (
+                    typeof report.evidenceUrl === 'string' ? (
+                      report.evidenceUrl.endsWith('.pdf') ? (
                       <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
                         <a
                           href={report.evidenceUrl}
