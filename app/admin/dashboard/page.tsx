@@ -339,36 +339,37 @@ export default function AdminDashboardPage() {
                   {filteredReports.map((report) => {
                     const isUnverified = !report.aiAnalysis;
                     return (
-                    <tr key={report.id} className={`hover:bg-gray-50 transition-colors ${isUnverified ? 'bg-yellow-50/50 border-l-4 border-yellow-400' : ''}`}>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="font-mono font-semibold text-gray-900">{report.accessCode}</span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-900">{report.category}</span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
-                          {report.urgency}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
-                          {report.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {formatDate(report.createdAt)}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right">
-                        <Link href={`/admin/reports/${report.id}`}>
-                          <Button size="sm" className="flex items-center gap-2">
-                            <Eye className="w-4 h-4" />
-                            <span className="hidden sm:inline">View</span>
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                      <tr key={report.id} className={`hover:bg-gray-50 transition-colors ${isUnverified ? 'bg-yellow-50/50 border-l-4 border-yellow-400' : ''}`}>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className="font-mono font-semibold text-gray-900">{report.accessCode}</span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900">{report.category}</span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getUrgencyColor(report.urgency)}`}>
+                            {report.urgency}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
+                            {report.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {formatDate(report.createdAt)}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-right">
+                          <Link href={`/admin/reports/${report.id}`}>
+                            <Button size="sm" className="flex items-center gap-2">
+                              <Eye className="w-4 h-4" />
+                              <span className="hidden sm:inline">View</span>
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
