@@ -309,46 +309,46 @@ export default function SubmitReportPage() {
             </div>
           </div>
 
-          <div className="w-full max-w-5xl relative z-10">
+          <div className="w-full max-w-4xl relative z-10">
             <div className="grid lg:grid-cols-2 gap-0 items-stretch">
               {/* Left Side - Access Code */}
               <div className="flex">
-                <Card variant="elevated" className="w-full p-6 md:p-8 flex flex-col rounded-xl lg:rounded-tl-xl lg:rounded-bl-xl lg:rounded-tr-none lg:rounded-br-none">
-                  <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-xl mb-4 shadow-lg">
-                      <CheckCircle2 className="w-10 h-10 text-white" />
+                <Card variant="elevated" className="w-full p-4 md:p-5 flex flex-col rounded-xl lg:rounded-tl-xl lg:rounded-bl-xl lg:rounded-tr-none lg:rounded-br-none">
+                  <div className="text-center mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-xl mb-3 shadow-lg">
+                      <CheckCircle2 className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
+                    <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 mb-1.5">
                       Report Submitted Successfully!
                     </h1>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600">
                       Thank you for your courage. Your report has been received.
                     </p>
                   </div>
 
                   {/* Access Code Card */}
-                  <div className="p-4 mb-6 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-2 border-[#0da2cb]/50 rounded-lg">
-                    <p className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider text-center">Your Access Code</p>
-                    <p className="text-3xl md:text-4xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-4 tracking-wider text-center">
+                  <div className="p-3 mb-4 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-2 border-[#0da2cb]/50 rounded-lg">
+                    <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider text-center">Your Access Code</p>
+                    <p className="text-2xl md:text-3xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-3 tracking-wider text-center">
                       {accessCode}
                     </p>
-                    <Button onClick={copyToClipboard} size="md" className="w-full">
-                      <Copy className="w-4 h-4 mr-2" />
+                    <Button onClick={copyToClipboard} size="sm" className="w-full">
+                      <Copy className="w-3 h-3 mr-2" />
                       Copy Access Code
                     </Button>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-2 mb-3">
                     <Link href={`/track/${accessCode}`}>
-                      <Button size="md" className="w-full">
+                      <Button size="sm" className="w-full">
                         Track Your Report
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                        <ArrowRight className="w-3 h-3 ml-2" />
                       </Button>
                     </Link>
                     <Button
                       variant="outline"
-                      size="md"
+                      size="sm"
                       onClick={() => {
                         setAccessCode(null);
                         setFormData({ category: "", urgency: "", description: "" });
@@ -361,7 +361,7 @@ export default function SubmitReportPage() {
                   </div>
 
                   {/* Important Note */}
-                  <div className="p-3 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
+                  <div className="p-2 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
                     <p className="text-xs text-[#224092] leading-relaxed text-center">
                       <strong className="text-[#116aae]">Important:</strong> Save this access code to track your report.
                     </p>
@@ -371,7 +371,7 @@ export default function SubmitReportPage() {
 
               {/* Right Side - Explanation */}
               <div className="flex">
-                <Card variant="elevated" className="w-full p-6 md:p-8 bg-gradient-to-br from-[#116aae] via-[#0d87bc] to-[#0da2cb] text-white relative overflow-hidden flex flex-col rounded-xl lg:rounded-tr-xl lg:rounded-br-xl lg:rounded-tl-none lg:rounded-bl-none">
+                <Card variant="elevated" className="w-full p-4 md:p-5 bg-gradient-to-br from-[#116aae] via-[#0d87bc] to-[#0da2cb] text-white relative overflow-hidden flex flex-col rounded-xl lg:rounded-tr-xl lg:rounded-br-xl lg:rounded-tl-none lg:rounded-bl-none">
                   {/* Background decorative elements */}
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
@@ -379,44 +379,44 @@ export default function SubmitReportPage() {
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className="mb-6">
-                      <h2 className="text-xl md:text-2xl font-bold mb-3 leading-tight">
+                    <div className="mb-4">
+                      <h2 className="text-lg md:text-xl font-bold mb-2 leading-tight">
                         What Happens Next?
                       </h2>
-                      <p className="text-sm opacity-95 leading-relaxed mb-4">
+                      <p className="text-xs opacity-95 leading-relaxed mb-3">
                         Here's what will happen to your report:
                       </p>
                     </div>
 
-                    <div className="flex-1 space-y-4">
-                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 space-y-2.5">
+                      <div className="flex items-start gap-2.5 p-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold mb-1">Secure Storage</p>
+                          <p className="text-xs font-semibold mb-0.5">Secure Storage</p>
                           <p className="text-xs opacity-90 leading-relaxed">Your report has been stored securely in our database.</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2.5 p-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold mb-1">Verification Process</p>
+                          <p className="text-xs font-semibold mb-0.5">Verification Process</p>
                           <p className="text-xs opacity-90 leading-relaxed">It will be verified first - category and urgency will be reviewed by our team.</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2.5 p-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold mb-1">Priority Sorting</p>
+                          <p className="text-xs font-semibold mb-0.5">Priority Sorting</p>
                           <p className="text-xs opacity-90 leading-relaxed">After verification, reports are sorted by urgency while considering the time they were reported.</p>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2.5 p-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold mb-1">Retention Policy</p>
+                          <p className="text-xs font-semibold mb-0.5">Retention Policy</p>
                           <p className="text-xs opacity-90 leading-relaxed">When your report is marked as resolved, it will be kept in the database for 30 days before being permanently deleted, leaving no trace.</p>
                         </div>
                       </div>
