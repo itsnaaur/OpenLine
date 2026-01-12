@@ -520,7 +520,17 @@ export default function AdminReportDetailPage() {
                       </div>
                     ) : (
                       typeof report.evidenceUrl === 'string' && (
-                        <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                        <div 
+                          className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-[#116aae] transition-colors"
+                          onClick={() => {
+                            const imageUrls = evidenceImages;
+                            const imageIndex = imageUrls.indexOf(report.evidenceUrl);
+                            if (imageIndex !== -1) {
+                              setSelectedImageIndex(imageIndex);
+                              setImageZoomOpen(true);
+                            }
+                          }}
+                        >
                           <Image
                             src={report.evidenceUrl}
                             alt="Evidence"
