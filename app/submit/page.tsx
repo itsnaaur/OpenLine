@@ -237,42 +237,75 @@ export default function SubmitReportPage() {
             <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-gradient-to-br from-[#0dc7e4]/15 via-[#116aae]/10 to-[#0da2cb]/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }}></div>
             <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-[#116aae]/12 via-[#0da2cb]/10 to-[#0dc7e4]/12 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
             
-            {/* Encouraging words with fade in/out animation */}
-            <div className="absolute top-1/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
+            {/* Encouraging words with fade in/out animation - spread across the page */}
+            {/* Left side words */}
+            <div className="absolute top-[10%] left-[5%] text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
               You're Brave
             </div>
-            <div className="absolute top-1/4 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1s' }}>
+            <div className="absolute top-[20%] left-[8%] text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1.5s' }}>
               Your Voice Matters
             </div>
-            <div className="absolute top-1/3 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
+            <div className="absolute top-[35%] left-[3%] text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '3s' }}>
               Stay Safe
             </div>
-            <div className="absolute top-2/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3s' }}>
-              Thank You
-            </div>
-            <div className="absolute top-1/2 left-1/5 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '4s' }}>
+            <div className="absolute top-[50%] left-[6%] text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '4.5s' }}>
               Courage
             </div>
-            <div className="absolute top-3/5 right-1/4 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '5s' }}>
-              You're Protected
-            </div>
-            <div className="absolute bottom-2/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '6s' }}>
+            <div className="absolute top-[65%] left-[4%] text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '6s' }}>
               Support
             </div>
-            <div className="absolute bottom-1/3 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '7s' }}>
-              Anonymous
-            </div>
-            <div className="absolute bottom-1/4 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '8s' }}>
+            <div className="absolute top-[80%] left-[7%] text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '7.5s' }}>
               You Matter
             </div>
-            <div className="absolute bottom-1/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '9s' }}>
+            
+            {/* Right side words */}
+            <div className="absolute top-[15%] right-[5%] text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '0.5s' }}>
+              Thank You
+            </div>
+            <div className="absolute top-[30%] right-[8%] text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
+              You're Protected
+            </div>
+            <div className="absolute top-[45%] right-[4%] text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3.5s' }}>
+              Anonymous
+            </div>
+            <div className="absolute top-[60%] right-[7%] text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '5s' }}>
               Secure
             </div>
-            <div className="absolute top-2/3 left-1/3 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '10s' }}>
+            <div className="absolute top-[75%] right-[5%] text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '6.5s' }}>
               Help is Here
             </div>
-            <div className="absolute top-3/4 right-1/3 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '11s' }}>
+            <div className="absolute top-[88%] right-[8%] text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '8s' }}>
               We Care
+            </div>
+            
+            {/* Additional words for more coverage */}
+            <div className="absolute top-[25%] left-[2%] text-[#116aae] font-semibold text-sm md:text-base opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '2.5s' }}>
+              Safe
+            </div>
+            <div className="absolute top-[40%] left-[10%] text-[#0dc7e4] font-bold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '4s' }}>
+              Protected
+            </div>
+            <div className="absolute top-[55%] left-[1%] text-[#0da2cb] font-semibold text-sm md:text-base opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '5.5s' }}>
+              Trust
+            </div>
+            <div className="absolute top-[70%] left-[9%] text-[#116aae] font-bold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '7s' }}>
+              Hope
+            </div>
+            
+            <div className="absolute top-[12%] right-[2%] text-[#0da2cb] font-bold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '1s' }}>
+              Safe Space
+            </div>
+            <div className="absolute top-[38%] right-[10%] text-[#116aae] font-semibold text-sm md:text-base opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '3s' }}>
+              Privacy
+            </div>
+            <div className="absolute top-[52%] right-[3%] text-[#0dc7e4] font-bold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '4.5s' }}>
+              Strength
+            </div>
+            <div className="absolute top-[68%] right-[9%] text-[#0da2cb] font-semibold text-sm md:text-base opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '6s' }}>
+              Trusted
+            </div>
+            <div className="absolute top-[82%] right-[3%] text-[#116aae] font-bold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '7.5s' }}>
+              Valued
             </div>
           </div>
 
