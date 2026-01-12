@@ -68,6 +68,17 @@ export default function AdminDashboardPage() {
     const statusMatch = statusFilter === "All" || report.status === statusFilter;
     const urgencyMatch = urgencyFilter === "All" || report.urgency === urgencyFilter;
     return statusMatch && urgencyMatch;
+  }).sort((a, b) => {
+    // Sort by urgency first (High > Medium > Low)
+    const urgencyOrder = { "High": 3, "Medium": 2, "Low": 1 };
+    const urgencyDiff = (urgencyOrder[b.urgency as keyof typeof urgencyOrder] || 0) - (urgencyOrder[a.urgency as keyof typeof urgencyOrder] || 0);
+    
+    if (urgencyDiff !== 0) {
+      return urgencyDiff;
+    }
+    
+    // If urgency is the same, sort by creation date (oldest first)
+    return a.createdAt - b.createdAt;
   });
 
   const getStatusColor = (status: ReportStatus) => {

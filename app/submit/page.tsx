@@ -302,6 +302,17 @@ export default function SubmitReportPage() {
               </Button>
             </Card>
 
+            {/* Report Processing Information */}
+            <Card variant="outlined" className="p-4 mb-4 bg-blue-50/50 border-blue-200/50">
+              <p className="text-xs font-semibold text-[#116aae] mb-2 uppercase tracking-wider">What Happens Next?</p>
+              <div className="text-xs text-gray-700 space-y-2 text-left">
+                <p>• Your report has been stored securely in our database</p>
+                <p>• It will be verified first (category and urgency will be reviewed)</p>
+                <p>• After verification, reports are sorted by urgency while considering the time they were reported</p>
+                <p>• When your report is marked as resolved, it will be kept in the database for 30 days before being permanently deleted, leaving no trace</p>
+              </div>
+            </Card>
+
             {/* Action Buttons with more spacing */}
             <div className="mb-4">
               <Link href={`/track/${accessCode}`}>
