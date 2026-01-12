@@ -230,8 +230,53 @@ export default function SubmitReportPage() {
           </div>
         </header>
 
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-5xl">
+        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Large animated gradient circles for subtle background */}
+            <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-gradient-to-br from-[#0dc7e4]/15 via-[#116aae]/10 to-[#0da2cb]/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }}></div>
+            <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-[#116aae]/12 via-[#0da2cb]/10 to-[#0dc7e4]/12 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
+            
+            {/* Encouraging words with fade in/out animation */}
+            <div className="absolute top-1/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
+              You're Brave
+            </div>
+            <div className="absolute top-1/4 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1s' }}>
+              Your Voice Matters
+            </div>
+            <div className="absolute top-1/3 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
+              Stay Safe
+            </div>
+            <div className="absolute top-2/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3s' }}>
+              Thank You
+            </div>
+            <div className="absolute top-1/2 left-1/5 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '4s' }}>
+              Courage
+            </div>
+            <div className="absolute top-3/5 right-1/4 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '5s' }}>
+              You're Protected
+            </div>
+            <div className="absolute bottom-2/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '6s' }}>
+              Support
+            </div>
+            <div className="absolute bottom-1/3 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '7s' }}>
+              Anonymous
+            </div>
+            <div className="absolute bottom-1/4 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '8s' }}>
+              You Matter
+            </div>
+            <div className="absolute bottom-1/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '9s' }}>
+              Secure
+            </div>
+            <div className="absolute top-2/3 left-1/3 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '10s' }}>
+              Help is Here
+            </div>
+            <div className="absolute top-3/4 right-1/3 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '11s' }}>
+              We Care
+            </div>
+          </div>
+
+          <div className="w-full max-w-5xl relative z-10">
             <div className="grid lg:grid-cols-2 gap-0 items-stretch">
               {/* Left Side - Access Code */}
               <div className="flex">
