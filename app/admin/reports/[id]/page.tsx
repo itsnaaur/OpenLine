@@ -506,8 +506,7 @@ export default function AdminReportDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    typeof report.evidenceUrl === 'string' ? (
-                      report.evidenceUrl.endsWith('.pdf') ? (
+                    typeof report.evidenceUrl === 'string' && report.evidenceUrl.endsWith('.pdf') ? (
                       <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
                         <a
                           href={report.evidenceUrl}
