@@ -230,118 +230,124 @@ export default function SubmitReportPage() {
           </div>
         </header>
 
-        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
-          {/* Animated Background Elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Large animated gradient circles for subtle background */}
-            <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-gradient-to-br from-[#0dc7e4]/15 via-[#116aae]/10 to-[#0da2cb]/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }}></div>
-            <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-[#116aae]/12 via-[#0da2cb]/10 to-[#0dc7e4]/12 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
-            
-            {/* Encouraging words with fade in/out animation */}
-            <div className="absolute top-1/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
-              You're Brave
-            </div>
-            <div className="absolute top-1/4 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1s' }}>
-              Your Voice Matters
-            </div>
-            <div className="absolute top-1/3 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
-              Stay Safe
-            </div>
-            <div className="absolute top-2/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3s' }}>
-              Thank You
-            </div>
-            <div className="absolute top-1/2 left-1/5 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '4s' }}>
-              Courage
-            </div>
-            <div className="absolute top-3/5 right-1/4 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '5s' }}>
-              You're Protected
-            </div>
-            <div className="absolute bottom-2/5 left-1/6 text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '6s' }}>
-              Support
-            </div>
-            <div className="absolute bottom-1/3 right-1/5 text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '7s' }}>
-              Anonymous
-            </div>
-            <div className="absolute bottom-1/4 left-1/4 text-[#0da2cb] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '8s' }}>
-              You Matter
-            </div>
-            <div className="absolute bottom-1/5 right-1/6 text-[#116aae] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7.5s ease-in-out infinite', animationDelay: '9s' }}>
-              Secure
-            </div>
-            <div className="absolute top-2/3 left-1/3 text-[#0dc7e4] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8.5s ease-in-out infinite', animationDelay: '10s' }}>
-              Help is Here
-            </div>
-            <div className="absolute top-3/4 right-1/3 text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '11s' }}>
-              We Care
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-5xl">
+            <div className="grid lg:grid-cols-2 gap-0 items-stretch">
+              {/* Left Side - Access Code */}
+              <div className="flex">
+                <Card variant="elevated" className="w-full p-6 md:p-8 flex flex-col rounded-xl lg:rounded-tl-xl lg:rounded-bl-xl lg:rounded-tr-none lg:rounded-br-none">
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-xl mb-4 shadow-lg">
+                      <CheckCircle2 className="w-10 h-10 text-white" />
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
+                      Report Submitted Successfully!
+                    </h1>
+                    <p className="text-sm text-gray-600">
+                      Thank you for your courage. Your report has been received.
+                    </p>
+                  </div>
+
+                  {/* Access Code Card */}
+                  <div className="p-4 mb-6 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-2 border-[#0da2cb]/50 rounded-lg">
+                    <p className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider text-center">Your Access Code</p>
+                    <p className="text-3xl md:text-4xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-4 tracking-wider text-center">
+                      {accessCode}
+                    </p>
+                    <Button onClick={copyToClipboard} size="md" className="w-full">
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Access Code
+                    </Button>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3 mb-4">
+                    <Link href={`/track/${accessCode}`}>
+                      <Button size="md" className="w-full">
+                        Track Your Report
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="md"
+                      onClick={() => {
+                        setAccessCode(null);
+                        setFormData({ category: "", urgency: "", description: "" });
+                        setFiles([]);
+                      }}
+                      className="w-full"
+                    >
+                      Submit Another Report
+                    </Button>
+                  </div>
+
+                  {/* Important Note */}
+                  <div className="p-3 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
+                    <p className="text-xs text-[#224092] leading-relaxed text-center">
+                      <strong className="text-[#116aae]">Important:</strong> Save this access code to track your report.
+                    </p>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Right Side - Explanation */}
+              <div className="flex">
+                <Card variant="elevated" className="w-full p-6 md:p-8 bg-gradient-to-br from-[#116aae] via-[#0d87bc] to-[#0da2cb] text-white relative overflow-hidden flex flex-col rounded-xl lg:rounded-tr-xl lg:rounded-br-xl lg:rounded-tl-none lg:rounded-bl-none">
+                  {/* Background decorative elements */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className="mb-6">
+                      <h2 className="text-xl md:text-2xl font-bold mb-3 leading-tight">
+                        What Happens Next?
+                      </h2>
+                      <p className="text-sm opacity-95 leading-relaxed mb-4">
+                        Here's what will happen to your report:
+                      </p>
+                    </div>
+
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold mb-1">Secure Storage</p>
+                          <p className="text-xs opacity-90 leading-relaxed">Your report has been stored securely in our database.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold mb-1">Verification Process</p>
+                          <p className="text-xs opacity-90 leading-relaxed">It will be verified first - category and urgency will be reviewed by our team.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold mb-1">Priority Sorting</p>
+                          <p className="text-xs opacity-90 leading-relaxed">After verification, reports are sorted by urgency while considering the time they were reported.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold mb-1">Retention Policy</p>
+                          <p className="text-xs opacity-90 leading-relaxed">When your report is marked as resolved, it will be kept in the database for 30 days before being permanently deleted, leaving no trace.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
-
-          <Card variant="elevated" className="w-full max-w-md p-5 md:p-6 text-center relative z-10">
-            {/* Success Icon */}
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[#0d87bc] to-[#0dc7e4] rounded-xl flex items-center justify-center mb-3 shadow-lg">
-              <CheckCircle2 className="w-10 h-10 text-white" />
-            </div>
-
-            {/* Title */}
-            <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 mb-2">
-              Report Submitted Successfully!
-            </h1>
-            <p className="text-sm text-gray-600 mb-4">
-              Thank you for your courage. Your report has been received.
-            </p>
-
-            {/* Access Code Card */}
-            <Card variant="outlined" className="p-4 mb-4 bg-gradient-to-br from-[#e6f4f8] to-[#d9eaf5] border-[#0da2cb]/50">
-              <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Your Access Code</p>
-              <p className="text-2xl md:text-3xl font-mono font-bold bg-gradient-to-r from-[#116aae] to-[#0da2cb] bg-clip-text text-transparent mb-3 tracking-wider">
-                {accessCode}
-              </p>
-              <Button onClick={copyToClipboard} size="md" className="w-full">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Access Code
-              </Button>
-            </Card>
-
-            {/* Report Processing Information */}
-            <Card variant="outlined" className="p-4 mb-4 bg-blue-50/50 border-blue-200/50">
-              <p className="text-xs font-semibold text-[#116aae] mb-2 uppercase tracking-wider">What Happens Next?</p>
-              <div className="text-xs text-gray-700 space-y-2 text-left">
-                <p>• Your report has been stored securely in our database</p>
-                <p>• It will be verified first (category and urgency will be reviewed)</p>
-                <p>• After verification, reports are sorted by urgency while considering the time they were reported</p>
-                <p>• When your report is marked as resolved, it will be kept in the database for 30 days before being permanently deleted, leaving no trace</p>
-              </div>
-            </Card>
-
-            {/* Action Buttons with more spacing */}
-            <div className="mb-4">
-              <Link href={`/track/${accessCode}`}>
-                <Button size="md" className="w-full mb-4">
-                  Track Your Report
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => {
-                  setAccessCode(null);
-                  setFormData({ category: "", urgency: "", description: "" });
-                  setFiles([]);
-                }}
-                className="w-full"
-              >
-                Submit Another Report
-              </Button>
-            </div>
-
-            {/* Important Note - more compact */}
-            <div className="p-3 bg-[#e6f4f8]/80 rounded-lg border border-[#0da2cb]/30">
-              <p className="text-xs text-[#224092] leading-relaxed">
-                <strong className="text-[#116aae]">Important:</strong> Save this access code to track your report.
-              </p>
-            </div>
-          </Card>
         </div>
         <Footer />
       </div>
