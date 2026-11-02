@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ZoomIn, ZoomOut, RotateCw, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
+import { X, ZoomIn, ZoomOut, RotateCw, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 interface ImageZoomModalProps {
@@ -19,15 +19,15 @@ export default function ImageZoomModal({ isOpen, onClose, images, initialIndex =
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Reset when modal opens/closes or initialIndex changes
-  useEffect(() => {
-    if (isOpen) {
-      setCurrentIndex(initialIndex);
-      setScale(1);
-      setRotation(0);
-      setPosition({ x: 0, y: 0 });
-    }
-  }, [isOpen, initialIndex]);
+  // The parent mounts this component fresh each time it opens, so state starts
+  // from initialIndex without a reset effect
+  const handleZoomIn = () => {
+    setScale((prev) => Math.min(prev + 0.25, 5)); // Max 5x zoom
+  };
+
+  const handleZoomOut = () => {
+    setScale((prev) => Math.max(prev - 0.25, 0.5)); // Min 0.5x zoom
+  };
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -58,14 +58,6 @@ export default function ImageZoomModal({ isOpen, onClose, images, initialIndex =
   }, [isOpen, currentIndex, images.length, onClose]);
 
   if (!isOpen || images.length === 0) return null;
-
-  const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.25, 5)); // Max 5x zoom
-  };
-
-  const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.25, 0.5)); // Min 0.5x zoom
-  };
 
   const handleReset = () => {
     setScale(1);

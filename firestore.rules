@@ -2,66 +2,120 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if user is admin
-    // Note: This requires Firebase Custom Claims to be set (see SECURITY.md)
+    // Admins are identified by a Firebase custom claim (see scripts/setup-admin.js)
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
-    
-    // Reports collection
+
+    function isValidCategory(category) {
+      return category in [
+        'Workplace Safety & Health',
+        'Sexual Harassment & Gender-Based Violence',
+        'Bullying & Discrimination',
+        'Data Privacy Violation',
+        'Financial Misconduct',
+        'Facility & Equipment Issue',
+        'General Suggestion/Feedback'
+      ];
+    }
+
+    function isValidUrgency(urgency) {
+      return urgency in ['Low', 'Medium', 'High'];
+    }
+
+    function isValidMessage(message, sender) {
+      return message is map
+        && message.keys().hasOnly(['sender', 'text', 'timestamp'])
+        && message.keys().hasAll(['sender', 'text', 'timestamp'])
+        && message.sender == sender
+        && message.text is string
+        && message.text.size() > 0
+        && message.text.size() <= 5000
+        && message.timestamp is number;
+    }
+
+    // Evidence must be Firebase Storage download URLs for files in evidence/
+    function isEvidenceUrl(url) {
+      return url is string
+        && url.matches('https://firebasestorage[.]googleapis[.]com/v0/b/[^/?#]+/o/evidence%2F[A-Za-z0-9-]+[.](jpg|png|pdf)[?]alt=media&token=[A-Za-z0-9-]+');
+    }
+
+    function isValidEvidence(urls) {
+      return urls is list
+        && urls.size() >= 1
+        && urls.size() <= 3
+        && isEvidenceUrl(urls[0])
+        && (urls.size() < 2 || isEvidenceUrl(urls[1]))
+        && (urls.size() < 3 || isEvidenceUrl(urls[2]));
+    }
+
+    function isValidNewReport(reportId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['accessCode', 'category', 'urgency', 'description', 'status', 'createdAt', 'lastUpdated', 'messages', 'evidenceUrl'])
+        && data.keys().hasAll(['accessCode', 'category', 'urgency', 'description', 'status', 'createdAt', 'lastUpdated', 'messages'])
+        && data.accessCode is string
+        && data.accessCode.matches('[0-9A-HJ-NP-Z]{4}-[0-9A-HJ-NP-Z]{4}-[0-9A-HJ-NP-Z]{4}')
+        // The document ID must be the SHA-256 hash of the access code
+        && reportId == hashing.sha256(data.accessCode).toHexString().lower()
+        && isValidCategory(data.category)
+        && isValidUrgency(data.urgency)
+        && data.description is string
+        && data.description.size() > 0
+        && data.description.size() <= 5000
+        && data.status == 'New'
+        && data.createdAt is number
+        && math.abs(data.createdAt - request.time.toMillis()) < 600000
+        && data.lastUpdated == data.createdAt
+        && data.messages is list
+        && data.messages.size() == 1
+        && isValidMessage(data.messages[0], 'reporter')
+        && (!('evidenceUrl' in data) || isValidEvidence(data.evidenceUrl));
+    }
+
+    // Reporters may only append one new message; earlier messages cannot be changed
+    function isReporterAppend() {
+      let before = resource.data;
+      let after = request.resource.data;
+      let count = before.messages.size();
+      return after.diff(before).affectedKeys().hasOnly(['messages', 'lastUpdated'])
+        && after.messages is list
+        && count < 500
+        && after.messages.size() == count + 1
+        && after.messages[0:count] == before.messages
+        && isValidMessage(after.messages[count], 'reporter')
+        && after.lastUpdated is number
+        && after.lastUpdated > before.lastUpdated;
+    }
+
+    function isValidAdminUpdate() {
+      let before = resource.data;
+      let after = request.resource.data;
+      return isAdmin()
+        && after.diff(before).affectedKeys().hasOnly(['status', 'category', 'urgency', 'messages', 'lastUpdated', 'aiAnalysis', 'expireAt'])
+        && after.status in ['New', 'In Progress', 'Resolved']
+        && isValidCategory(after.category)
+        && isValidUrgency(after.urgency)
+        && after.messages is list
+        && after.messages.size() >= before.messages.size()
+        && (!('expireAt' in after) || after.expireAt is timestamp)
+        && after.lastUpdated is number
+        && after.lastUpdated > before.lastUpdated;
+    }
+
     match /reports/{reportId} {
-      // Allow anyone to create a new report (anonymous submission)
-      // Validate that required fields are present and properly formatted
-      allow create: if request.resource.data.keys().hasAll(['accessCode', 'category', 'urgency', 'description', 'status', 'createdAt', 'lastUpdated', 'messages'])
-                   && request.resource.data.accessCode is string
-                   && request.resource.data.accessCode.size() >= 14
-                   && request.resource.data.category is string
-                   && request.resource.data.urgency is string
-                   && request.resource.data.description is string
-                   && request.resource.data.status is string
-                   && request.resource.data.createdAt is number
-                   && request.resource.data.lastUpdated is number
-                   && request.resource.data.messages is list
-                   && request.resource.data.messages.size() > 0;
-      
-      // SECURITY: Allow reads for access code queries
-      // Note: Without Cloud Functions, we allow reads but rely on frontend only querying by accessCode
-      // This is less secure than Cloud Functions but works without Blaze plan
-      // The frontend only queries by accessCode with where clause, preventing bulk enumeration
-      // Admins can read all reports for the dashboard
-      // 
-      // IMPORTANT: Firestore rules cannot check query parameters directly, so we allow reads
-      // but the frontend is designed to only query by accessCode
-      allow read: if isAdmin() || true;
-      
-      // Allow updates in two scenarios:
-      // 1. Admins can update any field (except accessCode and createdAt)
-      // 2. Anonymous users can ONLY update messages array and lastUpdated
-      allow update: if (
-        // Admin updates (can update status, category, urgency, messages, etc.)
-        (isAdmin()
-         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['accessCode', 'createdAt']))
-         && request.resource.data.lastUpdated is number
-         && request.resource.data.lastUpdated > resource.data.lastUpdated)
-        ||
-        // Anonymous reporter updates (can ONLY update messages and lastUpdated)
-        (request.auth == null
-         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['messages', 'lastUpdated'])
-         && request.resource.data.accessCode == resource.data.accessCode
-         && request.resource.data.category == resource.data.category
-         && request.resource.data.urgency == resource.data.urgency
-         && request.resource.data.description == resource.data.description
-         && request.resource.data.status == resource.data.status
-         && request.resource.data.createdAt == resource.data.createdAt
-         && request.resource.data.messages is list
-         && request.resource.data.messages.size() >= resource.data.messages.size()
-         && request.resource.data.lastUpdated is number
-         && request.resource.data.lastUpdated > resource.data.lastUpdated)
-      );
-      
-      // Only authenticated admins can delete reports
+      // Document IDs are SHA-256 hashes of 12-character access codes, so a single
+      // report can only be fetched by someone who knows its code.
+      allow get: if true;
+      // Listing or querying reports is admin-only (prevents bulk download)
+      allow list: if isAdmin();
+      allow create: if isValidNewReport(reportId);
+      allow update: if isValidAdminUpdate() || isReporterAppend();
       allow delete: if isAdmin();
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
-

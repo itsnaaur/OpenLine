@@ -1,5 +1,0 @@
-# Next.js ignore file
-# Exclude functions directory from Next.js compilation
-functions/
-functions/**/*
-

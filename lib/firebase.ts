@@ -1,8 +1,8 @@
 // Firebase configuration and initialization
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getStorage, FirebaseStorage } from "firebase/storage";
-import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getStorage, FirebaseStorage, connectStorageEmulator } from "firebase/storage";
+import { getAuth, Auth, connectAuthEmulator } from "firebase/auth";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -55,6 +55,13 @@ if (typeof window !== 'undefined') {
   _db = getFirestore(app);
   _storage = getStorage(app);
   _auth = getAuth(app);
+
+  // Local development against `firebase emulators:start`
+  if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true") {
+    connectFirestoreEmulator(_db, "127.0.0.1", 8080);
+    connectStorageEmulator(_storage, "127.0.0.1", 9199);
+    connectAuthEmulator(_auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  }
 } else {
   // Server-side: Create placeholder instances that will be replaced at runtime
   // This prevents build errors but these won't work on server
@@ -62,7 +69,7 @@ if (typeof window !== 'undefined') {
     _db = getFirestore(app);
     _storage = getStorage(app);
     _auth = getAuth(app);
-  } catch (e) {
+  } catch {
     // Ignore errors during build
   }
 }

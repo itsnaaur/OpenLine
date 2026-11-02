@@ -33,13 +33,7 @@ export default function AdminLoginPage() {
       // Force token refresh to get admin claim
       const idTokenResult = await userCredential.user.getIdTokenResult(true);
       const isAdmin = idTokenResult.claims.admin === true;
-      
-      console.log("Login - Admin check:", {
-        email: userCredential.user.email,
-        isAdmin: isAdmin,
-        claims: idTokenResult.claims
-      });
-      
+
       if (isAdmin) {
         toast.success("Login successful!");
         // Small delay to ensure token is refreshed
@@ -50,17 +44,15 @@ export default function AdminLoginPage() {
         toast.error("Access denied. Admin privileges required. Please contact administrator.");
         await signOut(auth);
       }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      let errorMessage = "Failed to login. Please check your credentials.";
-      
-      if (error.code === "auth/user-not-found") {
-        errorMessage = "No account found with this email.";
-      } else if (error.code === "auth/wrong-password") {
-        errorMessage = "Incorrect password.";
-      } else if (error.code === "auth/invalid-email") {
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      // Use one message for unknown email and wrong password so the
+      // login form can't be used to check which emails have accounts
+      let errorMessage = "Incorrect email or password.";
+
+      if (code === "auth/invalid-email") {
         errorMessage = "Invalid email address.";
-      } else if (error.code === "auth/too-many-requests") {
+      } else if (code === "auth/too-many-requests") {
         errorMessage = "Too many failed attempts. Please try again later.";
       }
       

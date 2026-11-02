@@ -2,28 +2,32 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Evidence files - stored in evidence/ folder
-    match /evidence/{fileName} {
-      // Allow anyone to upload evidence (for anonymous reports)
-      // But enforce file size and type restrictions
-      allow write: if request.resource.size < 5 * 1024 * 1024  // 5MB limit
-                   && (request.resource.contentType.matches('image/.*') 
-                       || request.resource.contentType == 'application/pdf')
-                   && fileName.matches('.*\\.(jpg|jpeg|png|pdf)$');
-      
-      // SECURITY: Allow reads for evidence files
-      // Note: Evidence URLs are only accessible if you know the exact path
-      // This is acceptable since access codes are required to get report data
-      allow read: if true;
-      
-      // Only admins can delete evidence
-      allow delete: if request.auth != null && request.auth.token.admin == true;
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
     }
-    
+
+    // Evidence files: evidence/<uuid>.<jpg|png|pdf>
+    match /evidence/{fileName} {
+      // Anyone can upload new evidence (anonymous reports). Existing files can't be
+      // overwritten, and the content type must match the extension.
+      allow create: if resource == null
+        && request.resource.size < 5 * 1024 * 1024
+        && fileName.matches('[A-Za-z0-9-]+[.](jpg|png|pdf)')
+        && ((fileName.matches('.*[.]jpg') && request.resource.contentType == 'image/jpeg')
+          || (fileName.matches('.*[.]png') && request.resource.contentType == 'image/png')
+          || (fileName.matches('.*[.]pdf') && request.resource.contentType == 'application/pdf'));
+
+      // The uploader needs a short window to fetch the download URL after uploading.
+      // After that, files are only reachable through the tokenized URL saved on the report.
+      allow get: if isAdmin() || request.time < resource.timeCreated + duration.value(15, 'm');
+      allow list: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
     // Deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;
     }
   }
 }
-

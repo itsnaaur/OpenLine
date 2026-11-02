@@ -1,16 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
-import { generateAccessCode } from "@/lib/utils";
+import { generateAccessCode, accessCodeToReportId } from "@/lib/utils";
+import {
+  MAX_EVIDENCE_FILES,
+  MAX_EVIDENCE_SIZE,
+  isAllowedEvidenceType,
+  sanitizeEvidenceFile,
+  evidenceStoragePath,
+} from "@/lib/evidence";
 import { Report, ReportCategory, UrgencyLevel } from "@/types";
-import { Upload, CheckCircle2, Copy, Lock, Shield, ArrowRight, Heart, FileText, ArrowLeft } from "lucide-react";
+import { Upload, CheckCircle2, Copy, Lock, Shield, ArrowRight, Heart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -32,12 +38,10 @@ export default function SubmitReportPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const MAX_FILES = 3;
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_FILES = MAX_EVIDENCE_FILES;
+  const MAX_DESCRIPTION_LENGTH = 5000; // keep in sync with firestore.rules
 
   const validateAndAddFiles = (newFiles: File[]) => {
-    const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-    
     // Check total file limit
     if (files.length + newFiles.length > MAX_FILES) {
       toast.error(`Maximum ${MAX_FILES} files allowed. Please remove some files first.`);
@@ -46,12 +50,12 @@ export default function SubmitReportPage() {
     
     // Validate all files
     for (const file of newFiles) {
-      if (!validTypes.includes(file.type)) {
+      if (!isAllowedEvidenceType(file.type)) {
         toast.error(`${file.name} is not a valid file type. Please upload JPEG, PNG, or PDF files.`);
         return false;
       }
       
-      if (file.size > MAX_FILE_SIZE) {
+      if (file.size > MAX_EVIDENCE_SIZE) {
         toast.error(`${file.name} is too large. File size must be less than 5MB.`);
         return false;
       }
@@ -114,45 +118,30 @@ export default function SubmitReportPage() {
     setIsSubmitting(true);
     
     try {
-      let evidenceUrl: string | string[] | undefined;
+      let evidenceUrl: string[] | undefined;
 
       if (files.length > 0) {
         toast.loading(`Uploading ${files.length} file(s)...`, { id: "upload" });
         
         try {
-          const baseTimestamp = Date.now();
-          const uploadPromises = files.map(async (file, index) => {
-            // Extract file extension (must preserve for Storage rules)
-            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
-            const validExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
-            if (!validExtensions.includes(fileExtension)) {
-              throw new Error(`Invalid file type: ${fileExtension}. Only JPEG, PNG, or PDF files are allowed.`);
+          const uploadPromises = files.map(async (file) => {
+            // Re-encode images to strip EXIF metadata, and use a random name
+            // so the original file name never leaves the reporter's device
+            const sanitized = await sanitizeEvidenceFile(file);
+            if (sanitized.size > MAX_EVIDENCE_SIZE) {
+              throw new Error(`${file.name} is too large after processing. Please use a smaller file.`);
             }
-            
-            // Sanitize base filename (remove extension first)
-            const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-            const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-            
-            // Use timestamp + index + random to ensure uniqueness even if uploaded simultaneously
-            const uniqueId = `${baseTimestamp}_${index}_${Math.random().toString(36).substring(2, 9)}`;
-            // Ensure filename ends with valid extension (required by Storage rules)
-            const fileName = `evidence/${uniqueId}_${sanitizedName}.${fileExtension}`;
-            const storageRef = ref(storage, fileName);
-            await uploadBytes(storageRef, file);
+            const storageRef = ref(storage, evidenceStoragePath(file.type));
+            await uploadBytes(storageRef, sanitized, { contentType: file.type });
             return await getDownloadURL(storageRef);
           });
           
           const uploadedUrls = await Promise.all(uploadPromises);
-          evidenceUrl = uploadedUrls.length === 1 ? uploadedUrls[0] : uploadedUrls;
+          evidenceUrl = uploadedUrls;
           toast.success(`${files.length} file(s) uploaded successfully!`, { id: "upload" });
-        } catch (uploadError: any) {
+        } catch (uploadError) {
           console.error("Error uploading files:", uploadError);
-          const errorMessage = uploadError?.message || uploadError?.code || "Unknown error";
-          console.error("Upload error details:", {
-            code: uploadError?.code,
-            message: uploadError?.message,
-            serverResponse: uploadError?.serverResponse,
-          });
+          const errorMessage = uploadError instanceof Error ? uploadError.message : "Unknown error";
           toast.error(`Failed to upload files: ${errorMessage}. Please try again.`, { id: "upload", duration: 5000 });
           setIsSubmitting(false);
           return;
@@ -180,7 +169,9 @@ export default function SubmitReportPage() {
       };
 
       toast.loading("Submitting report...", { id: "submit" });
-      await addDoc(collection(db, "reports"), reportData);
+      // The document ID is the hash of the access code (see firestore.rules)
+      const reportId = await accessCodeToReportId(code);
+      await setDoc(doc(db, "reports", reportId), reportData);
       toast.success("Report submitted successfully!", { id: "submit" });
 
       setAccessCode(code);
@@ -240,7 +231,7 @@ export default function SubmitReportPage() {
             {/* Encouraging words with fade in/out animation - spread across the page */}
             {/* Left side words */}
             <div className="absolute top-[10%] left-[5%] text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '0s' }}>
-              You're Brave
+              You&apos;re Brave
             </div>
             <div className="absolute top-[20%] left-[8%] text-[#0dc7e4] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 7s ease-in-out infinite', animationDelay: '1.5s' }}>
               Your Voice Matters
@@ -263,7 +254,7 @@ export default function SubmitReportPage() {
               Thank You
             </div>
             <div className="absolute top-[30%] right-[8%] text-[#116aae] font-bold text-lg md:text-xl opacity-0" style={{ animation: 'fadeInOut 9s ease-in-out infinite', animationDelay: '2s' }}>
-              You're Protected
+              You&apos;re Protected
             </div>
             <div className="absolute top-[45%] right-[4%] text-[#0da2cb] font-semibold text-base md:text-lg opacity-0" style={{ animation: 'fadeInOut 8s ease-in-out infinite', animationDelay: '3.5s' }}>
               Anonymous
@@ -384,7 +375,7 @@ export default function SubmitReportPage() {
                         What Happens Next?
                       </h2>
                       <p className="text-xs opacity-95 leading-relaxed mb-3">
-                        Here's what will happen to your report:
+                        Here&apos;s what will happen to your report:
                       </p>
                     </div>
 
@@ -555,6 +546,7 @@ export default function SubmitReportPage() {
                       value={formData.description}
                       onChange={handleInputChange}
                       required
+                      maxLength={MAX_DESCRIPTION_LENGTH}
                       rows={6}
                       placeholder="Provide details about the issue, including location, time, and any relevant information. Be as specific as possible to help us address your concern effectively."
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none resize-none transition-all bg-white hover:border-gray-300 text-base"
@@ -586,7 +578,7 @@ export default function SubmitReportPage() {
                               id="evidence"
                               name="evidence"
                               type="file"
-                              accept="image/jpeg,image/png,image/jpg,application/pdf"
+                              accept="image/jpeg,image/png,application/pdf"
                               onChange={handleFileChange}
                               multiple
                               className="sr-only"
@@ -595,6 +587,7 @@ export default function SubmitReportPage() {
                           <p className="pl-1">or drag and drop</p>
                         </div>
                         <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB each (Max {MAX_FILES} files)</p>
+                        <p className="text-xs text-gray-500">Photo location data is removed automatically. PDFs may still contain author details, so check them before uploading.</p>
                         {files.length > 0 && (
                           <div className="mt-3 space-y-2">
                             {files.map((file, index) => (

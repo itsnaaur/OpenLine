@@ -3,7 +3,7 @@
 
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { getOrganizationBySlug, Organization, DEFAULT_ORGANIZATION } from "@/lib/organizations";
+import { Organization, DEFAULT_ORGANIZATION } from "@/lib/organizations";
 
 /**
  * Custom hook to get the current organization from the URL path
@@ -32,5 +32,6 @@ export function useOrganization(): Organization {
     // }
     
     return DEFAULT_ORGANIZATION;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- pathname will be parsed once path-based orgs are enabled
   }, [pathname]);
 }

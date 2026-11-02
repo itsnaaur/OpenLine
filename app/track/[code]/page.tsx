@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { collection, query, where, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { accessCodeToReportId, isValidAccessCode, normalizeAccessCode } from "@/lib/utils";
+import { getEvidenceUrls, isPdfUrl } from "@/lib/evidence";
 import { Report, Message } from "@/types";
 import { AlertCircle, Send, Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
@@ -19,68 +21,51 @@ export default function ReportDetailPage() {
   const router = useRouter();
   const accessCode = params.code as string;
   
+  const code = normalizeAccessCode(decodeURIComponent(accessCode ?? ""));
+  const codeIsValid = isValidAccessCode(code);
+
   const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(codeIsValid);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const error = codeIsValid ? loadError : "Report not found. Please check your access code.";
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    if (!accessCode) return;
+    if (!codeIsValid) return;
 
-    const fetchReport = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
 
-        // Query Firestore for report with matching accessCode
-        const q = query(
-          collection(db, "reports"),
-          where("accessCode", "==", accessCode.toUpperCase())
-        );
-
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          setError("Report not found. Please check your access code.");
-          setLoading(false);
-          return;
-        }
-
-        // Get the first (and should be only) document
-        const docSnapshot = querySnapshot.docs[0];
-        const reportData = {
-          id: docSnapshot.id,
-          ...docSnapshot.data(),
-        } as Report;
-
-        setReport(reportData);
-
-        // Set up real-time listener for this document
-        const reportRef = doc(db, "reports", docSnapshot.id);
-        const unsubscribe = onSnapshot(reportRef, (snapshot) => {
+    // Reports are stored under the hash of their access code, so the
+    // reporter reads exactly one document and never queries the collection
+    accessCodeToReportId(code).then((reportId) => {
+      if (cancelled) return;
+      unsubscribe = onSnapshot(
+        doc(db, "reports", reportId),
+        (snapshot) => {
           if (snapshot.exists()) {
-            const updatedData = {
-              id: snapshot.id,
-              ...snapshot.data(),
-            } as Report;
-            setReport(updatedData);
+            setReport({ id: snapshot.id, ...snapshot.data() } as Report);
+            setLoadError(null);
+          } else {
+            setReport(null);
+            setLoadError("Report not found. Please check your access code.");
           }
-        });
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Error fetching report:", err);
+          setLoadError("Failed to load report. Please try again.");
+          setLoading(false);
+        }
+      );
+    });
 
-        setLoading(false);
-
-        // Cleanup listener on unmount
-        return () => unsubscribe();
-      } catch (err: any) {
-        console.error("Error fetching report:", err);
-        setError("Failed to load report. Please try again.");
-        setLoading(false);
-      }
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
     };
-
-    fetchReport();
-  }, [accessCode]);
+  }, [code, codeIsValid]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,31 +84,26 @@ export default function ReportDetailPage() {
         timestamp: Date.now(),
       };
 
-      // Get the latest report data to avoid stale state issues
-      // Use the current report state, but handle potential conflicts
-      const currentMessages = report.messages || [];
-      const updatedMessages = [...currentMessages, newMessageObj];
-      const newLastUpdated = Date.now();
-
-      // Update the report with the new message
+      // arrayUnion appends server-side, so concurrent messages are not overwritten
       await updateDoc(reportRef, {
-        messages: updatedMessages,
-        lastUpdated: newLastUpdated,
+        messages: arrayUnion(newMessageObj),
+        lastUpdated: Date.now(),
       });
 
       toast.success("Message sent!");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error sending message:", err);
       // Restore the message text if send failed
       setNewMessage(messageText);
       
       // Show more specific error message
-      if (err.code === 'permission-denied') {
+      const code = (err as { code?: string }).code;
+      if (code === 'permission-denied') {
         toast.error("Permission denied. Please refresh the page and try again.");
-      } else if (err.code === 'failed-precondition') {
+      } else if (code === 'failed-precondition') {
         toast.error("The report was updated. Please refresh and try again.");
       } else {
-        toast.error(`Failed to send message: ${err.message || 'Unknown error'}`);
+        toast.error("Failed to send message. Please try again.");
       }
     } finally {
       setSending(false);
@@ -296,66 +276,38 @@ export default function ReportDetailPage() {
                 <p className="text-gray-900 whitespace-pre-wrap">{report.description}</p>
               </div>
 
-              {report.evidenceUrl && (
+              {getEvidenceUrls(report.evidenceUrl).length > 0 && (
                 <div className="mt-4">
                   <p className="text-sm text-gray-500 mb-2">Evidence</p>
-                  {Array.isArray(report.evidenceUrl) ? (
-                    <div className="space-y-4">
-                      {report.evidenceUrl.map((url, idx) => (
-                        <div key={idx}>
-                          {url.endsWith('.pdf') ? (
-                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                              <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
-                              >
-                                <ImageIcon className="w-5 h-5" />
-                                <span>View PDF Evidence {report.evidenceUrl && report.evidenceUrl.length > 1 ? `(${idx + 1})` : ''}</span>
-                              </a>
-                            </div>
-                          ) : (
-                            <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                              <Image
-                                src={url}
-                                alt={`Evidence ${idx + 1}`}
-                                fill
-                                className="object-contain"
-                                unoptimized
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    typeof report.evidenceUrl === 'string' && report.evidenceUrl.endsWith('.pdf') ? (
-                      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <a
-                          href={report.evidenceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
-                        >
-                          <ImageIcon className="w-5 h-5" />
-                          <span>View PDF Evidence</span>
-                        </a>
+                  <div className="space-y-4">
+                    {getEvidenceUrls(report.evidenceUrl).map((url, idx, urls) => (
+                      <div key={url}>
+                        {isPdfUrl(url) ? (
+                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-[#116aae] hover:text-[#224092]"
+                            >
+                              <ImageIcon className="w-5 h-5" />
+                              <span>View PDF Evidence {urls.length > 1 ? `(${idx + 1})` : ''}</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                            <Image
+                              src={url}
+                              alt={`Evidence ${idx + 1}`}
+                              fill
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      typeof report.evidenceUrl === 'string' && (
-                        <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                          <Image
-                            src={report.evidenceUrl}
-                            alt="Evidence"
-                            fill
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                      )
-                    )
-                  )}
+                    ))}
+                  </div>
                 </div>
               )}
             </Card>
@@ -411,6 +363,7 @@ export default function ReportDetailPage() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
+              maxLength={5000}
               className="flex-1 px-4 py-3 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-base min-w-0"
               disabled={sending}
             />

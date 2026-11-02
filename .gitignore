@@ -12,12 +12,6 @@
 
 # testing
 /coverage
-*.test.js
-*.test.ts
-*.test.tsx
-*.spec.js
-*.spec.ts
-*.spec.tsx
 
 # next.js
 /.next/
@@ -29,10 +23,9 @@
 /dist
 
 # misc
-.DS_Store
 *.pem
+*.key
 *.log
-*.lock
 
 # debug
 npm-debug.log*

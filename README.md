@@ -1,7 +1,7 @@
 # OpenLine
 Anonymous Whistleblowing & Feedback Portal
 
-A secure, anonymous reporting system that allows employees/students to report issues without fear of retaliation.
+A secure, anonymous reporting system that lets employees and students report issues without fear of retaliation.
 
 ## 🏢 Third-Party Service Model
 
@@ -12,125 +12,101 @@ OpenLine operates as a **third-party reporting service**:
 - **Report Delivery**: Reports are sent to institutions for verification (institutions don't access the system directly)
 - **Anonymity Guarantee**: Since OpenLine admins don't work in client organizations, they cannot identify reporters
 
-### Multi-Tenant Architecture
+Multi-tenant support is scaffolded but not enabled yet. See [docs/MULTI_TENANT_ARCHITECTURE.md](./docs/MULTI_TENANT_ARCHITECTURE.md).
 
-OpenLine supports multiple organizations with complete data isolation:
-- Each organization has separate database collections and storage folders
-- Each organization can have a unique URL (future)
-- Currently active: **Demo organization** for general testing
-- Foundation ready for multi-tenant expansion when needed
+## 📋 Features
 
-📖 **See [MULTI_TENANT_ARCHITECTURE.md](./MULTI_TENANT_ARCHITECTURE.md) for detailed architecture documentation.**
+- ✅ **Anonymous Reporting** - Submit reports without creating an account
+- 🔐 **Access Code System** - Track reports using a 12-character code (`XXXX-XXXX-XXXX`)
+- 📸 **Evidence Upload** - Attach up to 3 photos/PDFs; photo metadata (GPS, device) is stripped in the browser before upload
+- 💬 **Two-Way Communication** - Chat with administrators anonymously
+- 📊 **Admin Dashboard** - Manage and respond to reports
+- 🤖 **AI Compliance Verification** - Gemini checks category and urgency against Philippine laws (admin only)
+- 🗑️ **Retention** - Resolved reports are deleted 30 days later (Firestore TTL)
+
+## 🛠️ Tech Stack
+
+Next.js 16 · React 19 · Firebase (Firestore, Storage, Auth) · Tailwind CSS 4 · TypeScript · Google Gemini
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### 1. Install dependencies
 ```bash
 npm install
 ```
 
-### 2. Set Up Firebase
-
-**Important:** You must configure Firebase before running the app.
-
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Firestore Database, Storage, and Authentication (Email/Password)
-3. Get your Firebase config from Project Settings
-4. Create `.env.local` in the project root:
+### 2. Configure environment
+Create `.env.local` in the project root (it is git-ignored):
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# Google Gemini AI (for Phase 6: AI Compliance Verification)
+# Server-only (never prefix with NEXT_PUBLIC_)
 GEMINI_API_KEY=your_gemini_api_key
+# Optional, defaults to gemini-2.5-flash
+GEMINI_MODEL=
 ```
 
-**Getting Your Gemini API Key:**
-1. Visit [Google AI Studio](https://aistudio.google.com/)
-2. Sign in with your Google account
-3. Click "Get API Key" or go to "API Keys" in the sidebar
-4. Create a new API key (it's free!)
-5. Copy the key and add it to `.env.local` as `GEMINI_API_KEY`
+The `NEXT_PUBLIC_FIREBASE_*` values are public by design; access is controlled by the security rules. `GEMINI_API_KEY` is secret.
 
-📖 **Detailed Setup:** See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for step-by-step instructions.
-
-### 3. Run Development Server
+### 3. Run
 ```bash
 npm run dev
 ```
 
-### 4. Test Firebase Connection
-Visit [http://localhost:3000/test-firebase](http://localhost:3000/test-firebase) to verify your Firebase setup.
+### Local development with Firebase emulators (optional)
+Runs everything locally with no real data:
 
-### 5. Open the App
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+```bash
+npx firebase-tools emulators:start --only firestore,storage,auth --project demo-openline
+```
 
-## 📋 Features
+Then start the app with `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true` and `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-openline`.
 
-- ✅ **Anonymous Reporting** - Submit reports without creating an account
-- 🔐 **Access Code System** - Track reports using unique codes
-- 📸 **Evidence Upload** - Attach photos/PDFs to reports
-- 💬 **Two-Way Communication** - Chat with administrators anonymously
-- 📊 **Admin Dashboard** - Manage and respond to reports
-- 🤖 **AI Compliance Verification** - AI-powered urgency validation against Philippine Corporate Laws
-- 🎨 **Modern UI** - Beautiful, responsive design with Tailwind CSS
+## 🔐 Admin accounts
 
-## 🛠️ Tech Stack
+Admins are Firebase Auth users with the `admin` custom claim.
 
-- **Next.js 16** - React framework
-- **React 19** - UI library
-- **Firebase** - Backend (Firestore, Storage, Auth)
-- **Tailwind CSS** - Styling
-- **TypeScript** - Type safety
+1. Create the user in Firebase Console → Authentication.
+2. Download a service account key (Project Settings → Service Accounts) and store it **outside** this repo.
+3. Run:
+   ```bash
+   GOOGLE_APPLICATION_CREDENTIALS=/path/outside/repo/key.json node scripts/setup-admin.mjs admin@yourdomain.com
+   ```
+   Add `--revoke` to remove admin access.
+
+## 🚢 Deployment
+
+The web app deploys to Vercel. Firestore/Storage rules deploy separately with the Firebase CLI. See [SECURITY.md](./SECURITY.md) for the full checklist, including the one-time report ID migration.
+
+## ✅ Checks
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
 
 ## 📁 Project Structure
 
 ```
-OpenLine/
-├── app/              # Next.js app directory
-│   ├── submit/       # Submit report page
-│   ├── track/        # Track report pages
-│   └── admin/        # Admin dashboard
-├── lib/              # Utilities
-│   ├── firebase.ts   # Firebase configuration
-│   ├── utils.ts      # Helper functions
-│   └── ai.ts         # AI compliance check (Gemini)
-├── app/
-│   └── actions.ts    # Server actions (AI check)
-└── types.ts          # TypeScript definitions
+app/
+  submit/            Submit report page
+  track/             Track report pages (lookup by access code)
+  admin/             Admin login, dashboard, report detail
+  actions.ts         Server action: AI check (admin-only)
+lib/
+  firebase.ts        Firebase client setup
+  evidence.ts        Evidence upload sanitizing and safe rendering
+  utils.ts           Access codes and report ID hashing
+  ai.ts              Gemini compliance check
+scripts/             Admin scripts (setup-admin, migrate-report-ids)
+firestore.rules      Database security rules
+storage.rules        File storage security rules
+docs/                Architecture notes
 ```
-
-## 🔒 Security
-
-- All dependencies are up-to-date and secure
-- Environment variables are not committed to git
-- Firestore security rules configured (see `SECURITY.md`)
-- Admin authentication via Firebase Auth
-- Anonymous reporting with access code system
-
-## 📚 Additional Documentation
-
-- [Firebase Setup Guide](./FIREBASE_SETUP.md) - Detailed Firebase configuration
-- [Security Guide](./SECURITY.md) - Security rules and best practices
-- [Deployment Guide](./DEPLOYMENT.md) - How to deploy to production
-- [Demo Data Guide](./scripts/create-demo-data.md) - Creating sample reports
-
-## 📝 Development Phases
-
-- ✅ **Phase 0:** Foundation & Setup
-- ✅ **Phase 1:** Public Report Submission
-- ✅ **Phase 2:** Report Tracking System
-- ✅ **Phase 3:** Admin Dashboard
-- ✅ **Phase 4:** Security & Polish
-- ✅ **Phase 6:** AI Compliance Verification (Gemini AI)
-
-## 📚 Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [Tailwind CSS](https://tailwindcss.com/docs)

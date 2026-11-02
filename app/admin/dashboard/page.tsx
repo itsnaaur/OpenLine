@@ -14,7 +14,6 @@ import { LogOut, Eye, Filter, X, FileText, Clock, AlertCircle, LayoutGrid, List 
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import Footer from "../../components/Footer";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
 
@@ -26,6 +25,7 @@ export default function AdminDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "All">("All");
   const [urgencyFilter, setUrgencyFilter] = useState<UrgencyLevel | "All">("All");
   const [viewMode, setViewMode] = useState<"list" | "card">("list");
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -43,7 +43,8 @@ export default function AdminDashboardPage() {
         });
 
         setReports(reportsData);
-      } catch (error: any) {
+        setNow(Date.now());
+      } catch (error) {
         console.error("Error fetching reports:", error);
         toast.error("Failed to load reports");
       } finally {
@@ -59,7 +60,7 @@ export default function AdminDashboardPage() {
       await signOut();
       router.push("/admin/login");
       toast.success("Signed out successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to sign out");
     }
   };
@@ -131,7 +132,6 @@ export default function AdminDashboardPage() {
   };
 
   const getTimeAgo = (timestamp: number) => {
-    const now = Date.now();
     const diff = now - timestamp;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);

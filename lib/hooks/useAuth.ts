@@ -23,13 +23,7 @@ export function useAuth() {
           // Force token refresh to get latest claims
           const idTokenResult = await user.getIdTokenResult(true);
           const adminClaim = idTokenResult.claims.admin === true;
-          
-          console.log("Auth check:", {
-            email: user.email,
-            adminClaim: adminClaim,
-            allClaims: idTokenResult.claims
-          });
-          
+
           setUser({
             ...user,
             customClaims: { admin: adminClaim },

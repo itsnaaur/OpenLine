@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Shield, ArrowRight, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
+import { isValidAccessCode, normalizeAccessCode } from "@/lib/utils";
 import Image from "next/image";
 import Footer from "../components/Footer";
 import Card from "../components/Card";
@@ -18,14 +19,14 @@ export default function TrackReportPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const cleanedCode = accessCode.trim().toUpperCase().replace(/\s/g, "");
+    const cleanedCode = normalizeAccessCode(accessCode);
     
     if (!cleanedCode) {
       toast.error("Please enter an access code");
       return;
     }
 
-    if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cleanedCode)) {
+    if (!isValidAccessCode(cleanedCode)) {
       toast.error("Invalid access code format. Format should be: XXXX-XXXX-XXXX");
       return;
     }

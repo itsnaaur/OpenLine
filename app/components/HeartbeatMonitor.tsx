@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface HeartbeatMonitorProps {
   messagesCount?: number; // Number of messages to influence animation
@@ -10,14 +10,17 @@ interface HeartbeatMonitorProps {
 export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }: HeartbeatMonitorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
-  const [pulseIntensity, setPulseIntensity] = useState(1);
+  // Kept in a ref so pulses don't restart the canvas animation loop
+  const pulseIntensityRef = useRef(1);
 
   // Pulse intensity based on message count (more messages = stronger pulse)
   useEffect(() => {
     if (messagesCount > 0) {
-      setPulseIntensity(Math.min(1 + messagesCount * 0.1, 2.5));
+      pulseIntensityRef.current = Math.min(1 + messagesCount * 0.1, 2.5);
       // Reset after animation
-      const timeout = setTimeout(() => setPulseIntensity(1), 1000);
+      const timeout = setTimeout(() => {
+        pulseIntensityRef.current = 1;
+      }, 1000);
       return () => clearTimeout(timeout);
     }
   }, [messagesCount]);
@@ -80,7 +83,6 @@ export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }:
         const segmentLength = canvas.width / 80; // Number of segments
         for (let x = 0; x < canvas.width; x += segmentLength) {
           const segmentTime = (time + x / segmentLength) * 0.02;
-          const segmentProgress = (x % segmentLength) / segmentLength;
           
           // Heartbeat pattern: flat line, spike up, spike down, flat, repeat
           let amplitude = 0;
@@ -91,16 +93,16 @@ export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }:
             amplitude = 0;
           } else if (cyclePos < 0.5) {
             // Upward spike (P-wave)
-            amplitude = (cyclePos - 0.3) / 0.2 * pulseIntensity * 15;
+            amplitude = (cyclePos - 0.3) / 0.2 * pulseIntensityRef.current * 15;
           } else if (cyclePos < 0.7) {
             // Downward dip
-            amplitude = (0.7 - cyclePos) / 0.2 * pulseIntensity * 15;
+            amplitude = (0.7 - cyclePos) / 0.2 * pulseIntensityRef.current * 15;
           } else if (cyclePos < 0.9) {
             // Big spike up (QRS complex)
-            amplitude = ((cyclePos - 0.7) / 0.2) * pulseIntensity * 25;
+            amplitude = ((cyclePos - 0.7) / 0.2) * pulseIntensityRef.current * 25;
           } else if (cyclePos < 1.1) {
             // Big spike down
-            amplitude = ((1.1 - cyclePos) / 0.2) * pulseIntensity * 25;
+            amplitude = ((1.1 - cyclePos) / 0.2) * pulseIntensityRef.current * 25;
           } else {
             // Flat baseline before next cycle
             amplitude = 0;
@@ -128,7 +130,7 @@ export default function HeartbeatMonitor({ messagesCount = 0, isActive = true }:
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isActive, pulseIntensity, messagesCount]);
+  }, [isActive]);
 
   return (
     <canvas

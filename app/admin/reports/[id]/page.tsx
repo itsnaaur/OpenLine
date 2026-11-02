@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { doc, onSnapshot, updateDoc, arrayUnion, deleteField, Timestamp } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { getEvidenceUrls, isPdfUrl } from "@/lib/evidence";
 import { Report, ReportStatus, Message, UrgencyLevel, ReportCategory } from "@/types";
 import { Send, Loader2, Image as ImageIcon, Save, Bot, AlertTriangle, CheckCircle2, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
@@ -15,6 +16,8 @@ import Button from "../../../components/Button";
 import Link from "next/link";
 import ImageZoomModal from "../../../components/ImageZoomModal";
 import { formatLawDisplayName, getLawReference } from "@/lib/lawReferences";
+
+const RETENTION_AFTER_RESOLVED_MS = 30 * 24 * 60 * 60 * 1000;
 
 export default function AdminReportDetailPage() {
   const params = useParams();
@@ -34,86 +37,45 @@ export default function AdminReportDetailPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [evidenceImages, setEvidenceImages] = useState<string[]>([]);
+
+  const evidenceUrls = useMemo(() => getEvidenceUrls(report?.evidenceUrl), [report?.evidenceUrl]);
+  const evidenceImages = useMemo(() => evidenceUrls.filter((url) => !isPdfUrl(url)), [evidenceUrls]);
 
   useEffect(() => {
     if (!reportId) return;
 
-    const fetchReport = async () => {
-      try {
-        setLoading(true);
-        const reportRef = doc(db, "reports", reportId);
-        const docSnapshot = await getDoc(reportRef);
-
-        if (!docSnapshot.exists()) {
+    let isFirstSnapshot = true;
+    const unsubscribe = onSnapshot(
+      doc(db, "reports", reportId),
+      (snapshot) => {
+        if (!snapshot.exists()) {
           toast.error("Report not found");
           router.push("/admin/dashboard");
           return;
         }
 
-        const reportData = {
-          id: docSnapshot.id,
-          ...docSnapshot.data(),
-        } as Report;
-
+        const reportData = { id: snapshot.id, ...snapshot.data() } as Report;
         setReport(reportData);
         setSelectedStatus(reportData.status);
-        setSelectedUrgency(reportData.urgency);
         setSelectedCategory(reportData.category);
-        
-        // Initialize evidence images on first load
-        if (reportData.evidenceUrl) {
-          const images: string[] = [];
-          if (Array.isArray(reportData.evidenceUrl)) {
-            images.push(...reportData.evidenceUrl.filter(url => !url.endsWith('.pdf')));
-          } else if (typeof reportData.evidenceUrl === 'string' && !reportData.evidenceUrl.endsWith('.pdf')) {
-            images.push(reportData.evidenceUrl);
-          }
-          setEvidenceImages(images);
+
+        // After the first load, preselect the AI's urgency recommendation if it differs
+        if (!isFirstSnapshot && reportData.aiAnalysis && !reportData.aiAnalysis.urgencyMatch) {
+          setSelectedUrgency(reportData.aiAnalysis.aiAssessment);
+        } else {
+          setSelectedUrgency(reportData.urgency);
         }
-
-        // Set up real-time listener
-        const unsubscribe = onSnapshot(reportRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const updatedData = {
-              id: snapshot.id,
-              ...snapshot.data(),
-            } as Report;
-            setReport(updatedData);
-            setSelectedStatus(updatedData.status);
-            setSelectedCategory(updatedData.category);
-            
-            // Update evidence images
-            if (updatedData.evidenceUrl) {
-              const images: string[] = [];
-              if (Array.isArray(updatedData.evidenceUrl)) {
-                images.push(...updatedData.evidenceUrl.filter(url => !url.endsWith('.pdf')));
-              } else if (typeof updatedData.evidenceUrl === 'string' && !updatedData.evidenceUrl.endsWith('.pdf')) {
-                images.push(updatedData.evidenceUrl);
-              }
-              setEvidenceImages(images);
-            }
-            
-            // If AI analysis exists and there's a mismatch, set selectedUrgency to AI's recommendation
-            // Otherwise, use the current urgency
-            if (updatedData.aiAnalysis && !updatedData.aiAnalysis.urgencyMatch) {
-              setSelectedUrgency(updatedData.aiAnalysis.aiAssessment);
-            } else {
-              setSelectedUrgency(updatedData.urgency);
-            }
-          }
-        });
-
+        isFirstSnapshot = false;
         setLoading(false);
-        return () => unsubscribe();
-      } catch (error: any) {
+      },
+      (error) => {
         console.error("Error fetching report:", error);
         toast.error("Failed to load report");
         setLoading(false);
       }
-    };
+    );
 
-    fetchReport();
+    return () => unsubscribe();
   }, [reportId, router]);
 
   const handleStatusUpdate = async () => {
@@ -122,12 +84,17 @@ export default function AdminReportDetailPage() {
     setUpdatingStatus(true);
     try {
       const reportRef = doc(db, "reports", report.id!);
+      // Resolved reports are removed 30 days later by a Firestore TTL policy on expireAt
       await updateDoc(reportRef, {
         status: selectedStatus,
+        expireAt:
+          selectedStatus === "Resolved"
+            ? Timestamp.fromMillis(Date.now() + RETENTION_AFTER_RESOLVED_MS)
+            : deleteField(),
         lastUpdated: Date.now(),
       });
       toast.success("Status updated successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
     } finally {
@@ -150,13 +117,13 @@ export default function AdminReportDetailPage() {
       };
 
       await updateDoc(reportRef, {
-        messages: [...(report.messages || []), newMessageObj],
+        messages: arrayUnion(newMessageObj),
         lastUpdated: Date.now(),
       });
 
       setNewMessage("");
       toast.success("Message sent!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
     } finally {
@@ -207,8 +174,11 @@ export default function AdminReportDetailPage() {
     try {
       toast.loading("Running AI compliance check...", { id: "ai-check" });
       
-      // Call server action to get AI result (no Firestore update here)
+      // The server action verifies this ID token has the admin claim
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error("Not signed in");
       const result = await runAiCheck(
+        idToken,
         report.description,
         report.category,
         report.urgency
@@ -235,7 +205,7 @@ export default function AdminReportDetailPage() {
       } else {
         toast.error("AI analysis failed. Please try again.", { id: "ai-check" });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error running AI check:", error);
       toast.error("Failed to run AI check. Please try again.", { id: "ai-check" });
     } finally {
@@ -262,7 +232,7 @@ export default function AdminReportDetailPage() {
       // Update category and add message
       await updateDoc(reportRef, {
         category: selectedCategory as ReportCategory,
-        messages: [...(report.messages || []), categoryChangeMessage],
+        messages: arrayUnion(categoryChangeMessage),
         lastUpdated: now,
       });
 
@@ -273,7 +243,7 @@ export default function AdminReportDetailPage() {
       }
 
       toast.success("Category updated and reporter notified!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating category:", error);
       toast.error("Failed to update category");
     } finally {
@@ -300,12 +270,12 @@ export default function AdminReportDetailPage() {
       // Update urgency and add message
       await updateDoc(reportRef, {
         urgency: selectedUrgency as UrgencyLevel,
-        messages: [...(report.messages || []), urgencyChangeMessage],
+        messages: arrayUnion(urgencyChangeMessage),
         lastUpdated: now,
       });
 
       toast.success("Urgency updated and reporter notified!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating urgency:", error);
       toast.error("Failed to update urgency");
     } finally {
@@ -457,93 +427,46 @@ export default function AdminReportDetailPage() {
               </div>
 
               {/* Evidence */}
-              {report.evidenceUrl && (
+              {evidenceUrls.length > 0 && (
                 <div>
                   <p className="text-sm text-gray-600 mb-3">Evidence</p>
-                  {Array.isArray(report.evidenceUrl) ? (
-                    <div className="space-y-4">
-                      {report.evidenceUrl.map((url, idx) => (
-                        <div key={idx}>
-                          {url.endsWith('.pdf') ? (
-                            <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
-                              <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
-                              >
-                                <ImageIcon className="w-5 h-5" />
-                                <span>View PDF Evidence {report.evidenceUrl && report.evidenceUrl.length > 1 ? `(${idx + 1})` : ''}</span>
-                              </a>
-                            </div>
-                          ) : (
-                            <div 
-                              className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-[#116aae] transition-colors"
-                              onClick={() => {
-                                // Find the image index (excluding PDFs)
-                                const imageUrls = report.evidenceUrl && Array.isArray(report.evidenceUrl) 
-                                  ? report.evidenceUrl.filter(u => !u.endsWith('.pdf'))
-                                  : (typeof report.evidenceUrl === 'string' && !report.evidenceUrl.endsWith('.pdf') 
-                                    ? [report.evidenceUrl] 
-                                    : []);
-                                const imageIndex = imageUrls.indexOf(url);
-                                if (imageIndex !== -1) {
-                                  setSelectedImageIndex(imageIndex);
-                                  setImageZoomOpen(true);
-                                }
-                              }}
+                  <div className="space-y-4">
+                    {evidenceUrls.map((url, idx) => (
+                      <div key={url}>
+                        {isPdfUrl(url) ? (
+                          <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
                             >
-                              <Image
-                                src={url}
-                                alt={`Evidence ${idx + 1}`}
-                                fill
-                                className="object-contain bg-gray-50"
-                                unoptimized
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    typeof report.evidenceUrl === 'string' && report.evidenceUrl.endsWith('.pdf') ? (
-                      <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <a
-                          href={report.evidenceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[#116aae] hover:text-[#224092] font-medium"
-                        >
-                          <ImageIcon className="w-5 h-5" />
-                          <span>View PDF Evidence</span>
-                        </a>
+                              <ImageIcon className="w-5 h-5" />
+                              <span>View PDF Evidence {evidenceUrls.length > 1 ? `(${idx + 1})` : ''}</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="relative block w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-[#116aae] transition-colors"
+                            onClick={() => {
+                              setSelectedImageIndex(evidenceImages.indexOf(url));
+                              setImageZoomOpen(true);
+                            }}
+                            aria-label={`Zoom evidence ${idx + 1}`}
+                          >
+                            <Image
+                              src={url}
+                              alt={`Evidence ${idx + 1}`}
+                              fill
+                              className="object-contain bg-gray-50"
+                              unoptimized
+                            />
+                          </button>
+                        )}
                       </div>
-                    ) : (
-                      typeof report.evidenceUrl === 'string' && (
-                        <div 
-                          className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-[#116aae] transition-colors"
-                          onClick={() => {
-                            const imageUrls = evidenceImages;
-                            if (typeof report.evidenceUrl === 'string') {
-                              const imageIndex = imageUrls.indexOf(report.evidenceUrl);
-                              if (imageIndex !== -1) {
-                                setSelectedImageIndex(imageIndex);
-                                setImageZoomOpen(true);
-                              }
-                            }
-                          }}
-                        >
-                          <Image
-                            src={report.evidenceUrl}
-                            alt="Evidence"
-                            fill
-                            className="object-contain bg-gray-50"
-                            unoptimized
-                          />
-                        </div>
-                      )
-                    )
-                  )}
+                    ))}
+                  </div>
                 </div>
               )}
             </Card>
@@ -793,6 +716,7 @@ export default function AdminReportDetailPage() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your reply..."
+                  maxLength={5000}
                   className="flex-1 px-4 py-3 md:py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#116aae] focus:border-[#116aae] outline-none text-base min-w-0"
                   disabled={sending}
                 />
@@ -818,8 +742,9 @@ export default function AdminReportDetailPage() {
       <Footer />
       
       {/* Image Zoom Modal */}
-      {evidenceImages.length > 0 && (
+      {imageZoomOpen && evidenceImages.length > 0 && (
         <ImageZoomModal
+          key={selectedImageIndex}
           isOpen={imageZoomOpen}
           onClose={() => setImageZoomOpen(false)}
           images={evidenceImages}
