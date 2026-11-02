@@ -12,7 +12,7 @@ OpenLine operates as a **third-party reporting service**:
 - **Report Delivery**: Reports are sent to institutions for verification (institutions don't access the system directly)
 - **Anonymity Guarantee**: Since OpenLine admins don't work in client organizations, they cannot identify reporters
 
-Multi-tenant support is scaffolded but not enabled yet. See [docs/MULTI_TENANT_ARCHITECTURE.md](./docs/MULTI_TENANT_ARCHITECTURE.md).
+Multi-tenant support is scaffolded (`lib/hooks/useOrganization.ts`) but not enabled yet.
 
 ## 📋 Features
 
@@ -108,5 +108,4 @@ lib/
 scripts/             Admin scripts (setup-admin, migrate-report-ids)
 firestore.rules      Database security rules
 storage.rules        File storage security rules
-docs/                Architecture notes
 ```

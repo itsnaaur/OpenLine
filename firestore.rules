@@ -2,7 +2,7 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Admins are identified by a Firebase custom claim (see scripts/setup-admin.js)
+    // Admins are identified by a Firebase custom claim (see scripts/setup-admin.mjs)
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
