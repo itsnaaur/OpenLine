@@ -9,6 +9,10 @@ import path from "node:path";
 const localKeyPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "serviceAccountKey.json");
 
 export function initAdminApp() {
+  // Local Firebase emulators don't need credentials
+  if (process.env.FIREBASE_AUTH_EMULATOR_HOST || process.env.FIRESTORE_EMULATOR_HOST) {
+    return initializeApp({ projectId: process.env.GCLOUD_PROJECT || "demo-openline" });
+  }
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     return initializeApp({ credential: applicationDefault() });
   }

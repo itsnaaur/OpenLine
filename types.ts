@@ -19,7 +19,7 @@ export interface Message {
 
 export interface Report {
   id?: string; // Firestore document ID (optional, added when fetched)
-  accessCode: string; // 6-character alphanumeric code (e.g., "8X2-99B")
+  accessCode: string; // 12-character code, XXXX-XXXX-XXXX (e.g., "8X2K-99BM-7ZQN")
   subject?: string; // Optional subject line
   category: ReportCategory;
   urgency: UrgencyLevel;
