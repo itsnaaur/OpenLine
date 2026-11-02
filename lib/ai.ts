@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ApiError, GoogleGenAI } from "@google/genai";
 import type { ReportCategory, UrgencyLevel } from "@/types";
 
 export const REPORT_CATEGORIES = [
@@ -28,7 +28,7 @@ export async function checkCompliance(
     console.error("AI Compliance Check Error: GEMINI_API_KEY is not set");
     return null;
   }
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
     Role: Corporate Compliance Officer (Philippines).
@@ -88,10 +88,14 @@ export async function checkCompliance(
 
   for (const modelName of modelNames) {
     try {
-      const testModel = genAI.getGenerativeModel({ model: modelName });
-      const result = await testModel.generateContent(prompt);
-      const text = result.response.text().replace(/```json|```/g, "").trim();
-      
+      const result = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        // Ask for JSON directly so the reply doesn't need markdown stripping
+        config: { responseMimeType: "application/json" },
+      });
+      const text = (result.text ?? "").replace(/```json|```/g, "").trim();
+
       // Try to extract JSON from the response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -115,8 +119,8 @@ export async function checkCompliance(
       // Response was not JSON; try the next model rather than reporting a false "match"
       continue;
     } catch (error) {
-      // If it's not a 404, it might be a different error - log and continue
-      if ((error as { status?: number }).status !== 404) {
+      // A 404 means the model name isn't available; anything else is worth logging
+      if (!(error instanceof ApiError && error.status === 404)) {
         console.error(`AI Compliance Check Error with ${modelName}:`, error);
       }
       // Try next model

@@ -18,7 +18,7 @@ Multi-tenant support is scaffolded (`lib/hooks/useOrganization.ts`) but not enab
 
 - ✅ **Anonymous Reporting** - Submit reports without creating an account
 - 🔐 **Access Code System** - Track reports using a 12-character code (`XXXX-XXXX-XXXX`)
-- 📸 **Evidence Upload** - Attach up to 3 photos/PDFs; photo metadata (GPS, device) is stripped in the browser before upload
+- 📸 **Evidence Upload** - Attach up to 3 photos/PDFs; photo metadata (GPS, device) and PDF document metadata (author, app, dates) are stripped in the browser before upload
 - 💬 **Two-Way Communication** - Chat with administrators anonymously
 - 📊 **Admin Dashboard** - Manage and respond to reports
 - 🤖 **AI Compliance Verification** - Gemini checks category and urgency against Philippine laws (admin only)
@@ -90,7 +90,10 @@ The web app deploys to Vercel. Firestore/Storage rules deploy separately with th
 npm run lint
 npm run typecheck
 npm run build
+npm run test:rules   # security rules tests (needs Java for the Firebase emulators)
 ```
+
+The same checks run on GitHub Actions for every push to `main` and every pull request.
 
 ## 📁 Project Structure
 
@@ -107,5 +110,6 @@ lib/
   ai.ts              Gemini compliance check
 scripts/             Admin scripts (setup-admin, migrate-report-ids)
 firestore.rules      Database security rules
+tests/               Security rules tests
 storage.rules        File storage security rules
 ```

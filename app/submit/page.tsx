@@ -588,7 +588,7 @@ export default function SubmitReportPage() {
                           <p className="pl-1">or drag and drop</p>
                         </div>
                         <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB each (Max {MAX_FILES} files)</p>
-                        <p className="text-xs text-gray-500">Photo location data is removed automatically. PDFs may still contain author details, so check them before uploading.</p>
+                        <p className="text-xs text-gray-500">Hidden details like photo location and PDF author are removed automatically. Text and images you can see in the file are uploaded as they are.</p>
                         {files.length > 0 && (
                           <div className="mt-3 space-y-2">
                             {files.map((file, index) => (

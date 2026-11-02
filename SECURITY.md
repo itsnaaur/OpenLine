@@ -17,7 +17,7 @@ OpenLine handles whistleblower reports, so reporter anonymity and report confide
 - Existing files cannot be overwritten.
 - Files are not publicly listable. After a 15-minute upload window, files can only be opened through the tokenized URL saved on the report.
 - The browser strips photo metadata (EXIF/GPS) by re-encoding images, and drops the original file name.
-- **PDF metadata is not stripped.** Reporters are told to check PDFs before uploading.
+- PDFs are rebuilt in the browser from their pages only, which drops document metadata (author, creator app, title, dates, XMP), earlier saved revisions, attachments, scripts, bookmarks and form data, and comment author names. Password-protected PDFs are rejected. Visible content, including images inside the PDF, is uploaded as is.
 
 ### AI check
 - `runAiCheck` is a server action, so it can be called over HTTP by anyone. It verifies the caller's Firebase ID token and requires the `admin` claim before using the Gemini key.
@@ -43,6 +43,9 @@ Do these steps in order.
 4. **Enable retention**: In Google Cloud Console → Firestore → Time-to-live, create a TTL policy on collection group `reports`, field `expireAt`. Resolved reports are then deleted about 30 days after resolution.
    Evidence files are not covered by the TTL policy. Add a Cloud Storage lifecycle rule on the `evidence/` prefix (for example, delete objects older than 180 days), or delete them when a report is removed.
 5. **Rotate secrets** if they were ever shared or committed: `GEMINI_API_KEY`, admin passwords, and any service account key.
+
+## Tests
+`npm run test:rules` runs the Firestore and Storage rules tests in `tests/` against the Firebase emulators. GitHub Actions runs them, with lint, typecheck and build, on every push to `main` and every pull request.
 
 ## Secrets and files that must never be committed
 - `.env*` files (except a template), `serviceAccountKey.json`, `firebase-adminsdk-*.json`, `*.pem`, `*.key`
