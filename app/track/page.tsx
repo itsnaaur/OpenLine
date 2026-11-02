@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search, Shield, ArrowRight, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import { isValidAccessCode, normalizeAccessCode } from "@/lib/utils";
+import { setTrackCode } from "@/lib/trackSession";
 import Image from "next/image";
 import Footer from "../components/Footer";
 import Card from "../components/Card";
@@ -32,7 +33,9 @@ export default function TrackReportPage() {
     }
 
     setIsLoading(true);
-    router.push(`/track/${cleanedCode}`);
+    // Keep the code out of the URL (history, logs); the view page reads it from sessionStorage
+    setTrackCode(cleanedCode);
+    router.push("/track/view");
   };
 
   return (

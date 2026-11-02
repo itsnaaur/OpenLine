@@ -5,6 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { generateAccessCode, accessCodeToReportId } from "@/lib/utils";
+import { setTrackCode } from "@/lib/trackSession";
 import {
   MAX_EVIDENCE_FILES,
   MAX_EVIDENCE_SIZE,
@@ -331,7 +332,7 @@ export default function SubmitReportPage() {
 
                   {/* Action Buttons */}
                   <div className="space-y-2 mb-3">
-                    <Link href={`/track/${accessCode}`}>
+                    <Link href="/track/view" onClick={() => { if (accessCode) setTrackCode(accessCode); }}>
                       <Button size="sm" className="w-full">
                         Track Your Report
                         <ArrowRight className="w-3 h-3 ml-2" />

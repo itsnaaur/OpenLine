@@ -54,7 +54,9 @@ export function isTrustedEvidenceUrl(url: unknown): url is string {
   if (typeof url !== "string") return false;
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname === "firebasestorage.googleapis.com";
+    if (parsed.protocol === "https:" && parsed.hostname === "firebasestorage.googleapis.com") return true;
+    // Local Storage emulator (development only)
+    return process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true" && parsed.origin === "http://127.0.0.1:9199";
   } catch {
     return false;
   }
